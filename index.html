@@ -1,96 +1,96 @@
 <!DOCTYPE html>
 <head>
-	<link type="text/css" rel="stylesheet" href="css/layout.css"/>
-	<script type="text/javascript" src="lib/jquery-1.8.1.min.js"></script>
-	<script type="text/javascript" src="lib/knockout-2.1.0.debug.js"></script>
-	<script type="text/javascript" src="src/code.js"></script>
-	<script type="text/javascript" src="src/robot.js"></script>
-	<script type="text/javascript" src="src/arena.js"></script>
-	<script type="text/javascript" src="src/ui.js"></script>
-	<script type="text/javascript">
-		var DEBUG = !!window.location.href.indexOf(/(\?&)debug/);
-	</script>
+    <link type="text/css" rel="stylesheet" href="css/layout.css"/>
+    <script type="text/javascript" src="lib/jquery-1.8.1.min.js"></script>
+    <script type="text/javascript" src="lib/knockout-2.1.0.debug.js"></script>
+    <script type="text/javascript" src="src/code.js"></script>
+    <script type="text/javascript" src="src/robot.js"></script>
+    <script type="text/javascript" src="src/arena.js"></script>
+    <script type="text/javascript" src="src/ui.js"></script>
+    <script type="text/javascript">
+        var DEBUG = !!window.location.href.indexOf(/(\?&)debug/);
+    </script>
 </head>
 <body>
-	<div id="robot-list">
-		<ol data-bind="foreach: arena.robots">
-			<li data-bind="click: $parent.selectRobot, css: {selected: $data === $parent.selectedRobot()}">
-				<div class="icon" data-bind="spriteURL: spriteURL, tint: hue"></div>
-				<div class="name" data-bind="text: name"></div>
-				<div class="status">
-					Energy: <span data-bind="text: energy"></span>
-					Damage: <span data-bind="text: damage"></span>
-				</div>
-			</li>
-		</ol>
-		<div class="button-bar">
-			<button data-bind="click: loadRobot, disable: arena.robots().length >= 6">+</button>
-		</div>
-	</div>
+    <div id="robot-list">
+        <ol data-bind="foreach: arena.robots">
+            <li data-bind="click: $parent.selectRobot, css: {selected: $data === $parent.selectedRobot()}">
+                <div class="icon" data-bind="spriteURL: spriteURL, tint: hue"></div>
+                <div class="name" data-bind="text: name"></div>
+                <div class="status">
+                    Energy: <span data-bind="text: energy"></span>
+                    Damage: <span data-bind="text: damage"></span>
+                </div>
+            </li>
+        </ol>
+        <div class="button-bar">
+            <button data-bind="click: loadRobot, disable: arena.robots().length >= 6">+</button>
+        </div>
+    </div>
 
-	<div id="arena" data-bind="css: {animate: speed().delay > 0}">
-		<div class="layer robots" data-bind="foreach: arena.robots">
-			<div class="robot" data-bind="top: top, left: left, css: {selected: $data === $parent.selectedRobot()}">
-				<div class="icon" data-bind="spriteURL: spriteURL, tint: hue, rotate: heading"></div>
-				<div class="turret" data-bind="rotate: turretAngle"></div>
-			</div>
-		</div>
-		<div class="layer projectiles" data-bind="foreach: arena.projectiles">
-			<div data-bind="top: top, left: left, tint: shooter.hue, rotate: heading, attr: {class: type}">
-			</div>
-		</div>
-	</div>
+    <div id="arena" data-bind="css: {animate: speed().delay > 0}">
+        <div class="layer robots" data-bind="foreach: arena.robots">
+            <div class="robot" data-bind="top: top, left: left, css: {selected: $data === $parent.selectedRobot()}">
+                <div class="icon" data-bind="spriteURL: spriteURL, tint: hue, rotate: heading"></div>
+                <div class="turret" data-bind="rotate: turretAngle"></div>
+            </div>
+        </div>
+        <div class="layer projectiles" data-bind="foreach: arena.projectiles">
+            <div data-bind="top: top, left: left, tint: shooter.hue, rotate: heading, attr: {class: type}">
+            </div>
+        </div>
+    </div>
 
-	<div id="controls">
-		<div class="button-bar">
-			<select data-bind="options: speedOptions, optionsText: 'label', value: speed, disable: running"></select>
-			<button data-bind="click: run, visible: !running()">Run</button>
-			<button data-bind="click: pause, visible: running">Pause</button>
-			<button data-bind="click: reset, visible: !running()">Reset</button>
-			<button data-bind="click: tick, visible: !running()">Tick</button>
-			<button data-bind="click: oneInstruction, visible: !running()">One Instruction</button>
-		</div>
-	</div>
+    <div id="controls">
+        <div class="button-bar">
+            <select data-bind="options: speedOptions, optionsText: 'label', value: speed, disable: running"></select>
+            <button data-bind="click: run, visible: !running()">Run</button>
+            <button data-bind="click: pause, visible: running">Pause</button>
+            <button data-bind="click: reset, visible: !running()">Reset</button>
+            <button data-bind="click: tick, visible: !running()">Tick</button>
+            <button data-bind="click: oneInstruction, visible: !running()">One Instruction</button>
+        </div>
+    </div>
 
-	<div id="debugger" data-bind="with: selectedRobot">
-		<div class="section instructions">
-			<h4>Instructions</h4>
-			<ol class="instructions" data-bind="foreach: instructions">
-				<li data-bind="
-						css: {current: $index() === $parent.ptr()},
-						click: $parent.highlightInstruction.bind($parent, $index()),
-						scrollIntoViewWhen: $index() === $parent.ptr()">
-					<span class="number" data-bind="text: $index"></span>
-					<span class="instruction" data-bind="text: $data"></span>
-				</li>
-			</ol>
-		</div>
+    <div id="debugger" data-bind="with: selectedRobot">
+        <div class="section instructions">
+            <h4>Instructions</h4>
+            <ol class="instructions" data-bind="foreach: instructions">
+                <li data-bind="
+                        css: {current: $index() === $parent.ptr()},
+                        click: $parent.highlightInstruction.bind($parent, $index()),
+                        scrollIntoViewWhen: $index() === $parent.ptr()">
+                    <span class="number" data-bind="text: $index"></span>
+                    <span class="instruction" data-bind="text: $data"></span>
+                </li>
+            </ol>
+        </div>
 
-		<div class="section stack">
-			<h4>Stack</h4>
-			<ol class="stack" data-bind="foreach: stack">
-				<li>
-					<span class="number" data-bind="text: $index"></span>
-					<span class="value" data-bind="text: $data"></span>
-				</li>
-			</ol>
-		</div>
+        <div class="section stack">
+            <h4>Stack</h4>
+            <ol class="stack" data-bind="foreach: stack">
+                <li>
+                    <span class="number" data-bind="text: $index"></span>
+                    <span class="value" data-bind="text: $data"></span>
+                </li>
+            </ol>
+        </div>
 
-		<div class="section code">
-			<h4>Code</h4>
-			<textarea class="code" data-bind="value: code"></textarea>
-			<button data-bind="click: compile">Compile</button>
-		</div>
+        <div class="section code">
+            <h4>Code</h4>
+            <textarea class="code" data-bind="value: code"></textarea>
+            <button data-bind="click: compile">Compile</button>
+        </div>
 
-		<div class="section registers">
-			<h4>Registers</h4>
-			<ul class="registers" data-bind="foreach: $root.registerNames">
-				<li>
-					<span class="name" data-bind="text: $data"></span>
-					<span class="value" data-bind="text: $parent.getRegister($data)"></span>
-				</li>
-			</ul>
-		</div>
-	</div>
+        <div class="section registers">
+            <h4>Registers</h4>
+            <ul class="registers" data-bind="foreach: $root.registerNames">
+                <li>
+                    <span class="name" data-bind="text: $data"></span>
+                    <span class="value" data-bind="text: $parent.getRegister($data)"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>
