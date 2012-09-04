@@ -269,7 +269,7 @@ function makeProjectile(shooter, speed, heading, damage) {
         y = shooter.origin.y();
     makeMovable.call(this, speed, heading, x, y);
     // Move the projectile away from the shooter's center.
-    this.origin.move(heading, shooter.radius);
+    this.origin.move(heading, shooter.radius + this.radius);
 }
 
 function Bullet(shooter, heading, energy) {
