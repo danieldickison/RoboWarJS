@@ -3,10 +3,17 @@ body {
     position: relative;
 }
 
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 #robot-list {
     position: absolute;
-    left: 401px;
+    left: 400px;
     border: solid 1px gray;
+    border-left: none;
     width: 150px;
 }
 
@@ -17,6 +24,7 @@ body {
 #robot-list > ol > li {
     padding: 5px;
     font-size: 12px;
+    height: 44px;
 }
 #robot-list > ol > li.selected {
     background-color: #cceeff;
@@ -28,12 +36,40 @@ body {
     height: 32px;
 }
 
+#robot-list .status {
+    line-height: 8px;
+    font-size: 9px;
+    color: gray;
+}
+#robot-list .status .label {
+    display: inline-block;
+    width: 40px;
+}
+
+#robot-list .status .bar {
+    display: inline-block;
+    width: 60px;
+    height: 4px;
+    border: solid 1px gray;
+}
+#robot-list .status .bar > span {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+#robot-list .status .bar.green > span {
+    background-color: green;
+}
+#robot-list .status .bar.red > span {
+    background-color: red;
+}
+
 
 #controls {
     position: absolute;
     width: 400px;
     height: 50px;
-    top: 402px;
+    top: 400px;
 }
 
 
@@ -145,7 +181,7 @@ body {
     font-family: Menlo, Consolas, Inconsolata, "Bitstream Vera Sans Mono", monospace;
     font-size: 13px;
     border: none;
-    padding: 0;
+    padding: 5px;
     margin: 0;
 }
 

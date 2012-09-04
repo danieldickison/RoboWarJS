@@ -18,8 +18,15 @@
                 <div class="icon" data-bind="spriteURL: spriteURL, tint: hue"></div>
                 <div class="name" data-bind="text: name"></div>
                 <div class="status">
-                    Energy: <span data-bind="text: energy"></span>
-                    Damage: <span data-bind="text: damage"></span>
+                    <div data-bind="visible: !dead()">
+                        <span class="label">Energy</span>
+                        <span class="bar green"><span data-bind="style: {width: (100 * energy() / energyCapacity()) + '%'}"></span></span>
+                    </div>
+                    <div data-bind="visible: !dead()">
+                        <span class="label">Damage</span>
+                        <span class="bar red"><span data-bind="style: {width: (100 * damage() / damageCapacity()) + '%'}"></span></span>
+                    </div>
+                    <span data-bind="visible: dead">dead</span>
                 </div>
             </li>
         </ol>

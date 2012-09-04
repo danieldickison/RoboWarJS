@@ -27,6 +27,10 @@ function Arena() {
     };
 
     this.tick = function () {
+        if (self.livingRobots().length <= 1) {
+            return true;
+        }
+
         // Process robots.
         self.livingRobots().forEach(function (robot) {
             robot.startTick();

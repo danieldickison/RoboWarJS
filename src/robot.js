@@ -63,6 +63,7 @@ function Robot(init, arena) {
     this.hue = ko.computed(function () {
         return (self.number() * 210) % 360;
     });
+    this.kills = ko.observableArray();
     this.dead = ko.computed(function () {
         return self.damage() <= 0;
     });
@@ -237,6 +238,7 @@ Robot.prototype.reset = function () {
     this.turretAngle(0);
     this.energy(this.energyCapacity());
     this.damage(this.damageCapacity());
+    this.kills([]);
     if (this.instructions().length === 0) {
         this.compile();
     }
@@ -256,7 +258,7 @@ Robot.defaults = {
     stackSize: 100,
     clockSpeed: 5,
     spriteURL: 'img/default-robot.png',
-    code: "# I run in circles\nLoop: \n  10 spd' store\n  aim 5 + aim' store\n  hdg rand 6 / - hdg' store\n  Loop jump\n"
+    code: "# I run in circles\nLoop: \n  rand 30 / spd' store\n  aim 5 + aim' store\n  hdg rand 6 / - hdg' store\n  3 bllt' store\n  Loop jump\n"
 };
 
 

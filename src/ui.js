@@ -88,7 +88,11 @@ function ViewModel(arena) {
         clearInterval(self.running());
         self.running(null);
     };
-    this.tick = arena.tick.bind(arena, 1);
+    this.tick = function () {
+        if (arena.tick()) {
+            self.pause();
+        }
+    };
     this.oneInstruction = function () {
         // TODO
     };
