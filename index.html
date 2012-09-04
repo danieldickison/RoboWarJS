@@ -41,6 +41,17 @@
 		</div>
 	</div>
 
+	<div id="controls">
+		<div class="button-bar">
+			<select data-bind="options: speedOptions, optionsText: 'label', value: speed, disable: running"></select>
+			<button data-bind="click: run, visible: !running()">Run</button>
+			<button data-bind="click: pause, visible: running">Pause</button>
+			<button data-bind="click: reset, visible: !running()">Reset</button>
+			<button data-bind="click: tick, visible: !running()">Tick</button>
+			<button data-bind="click: oneInstruction, visible: !running()">One Instruction</button>
+		</div>
+	</div>
+
 	<div id="debugger" data-bind="with: selectedRobot">
 		<div class="section instructions">
 			<h4>Instructions</h4>

@@ -51,8 +51,31 @@ function ViewModel(arena) {
 	this.loadRobot = function () {
 		arena.addRobot(new Robot(Robot.defaults));
 	};
-
+	this.speedOptions = [
+		{label: 'slow', delay: 500},
+		{label: 'medium', delay: 100},
+		{label: 'fast', delay: 50},
+		{label: 'blinding', delay: 0},
+		{label: 'headless', delay: -1}
+	];
+	this.speed = ko.observable(this.speedOptions[0]);
 	this.projectiles = ko.observableArray();
+
+	this.running = ko.observable(null);
+	this.run = function () {
+		if (self.running()) return;
+		self.running(setInterval(self.tick.bind(self), self.speed().delay));
+	};
+	this.pause = function () {
+		if (!self.running()) return;
+		clearInterval(self.running());
+		self.running(null);
+	};
+	this.tick = arena.tick.bind(arena, 1);
+	this.oneInstruction = function () {
+		// TODO
+	};
+	this.reset = arena.reset.bind(arena);
 }
 
 var arena = new Arena,

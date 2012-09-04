@@ -11,9 +11,7 @@ function Arena() {
 	this.addRobot = function (robot) {
 		var number = self.robots.push(robot);
 		robot.number(number);
-		// TODO: avoid colliding robots.
-		robot.origin.x(Math.floor(50 + Math.random() * 300));
-		robot.origin.y(Math.floor(50 + Math.random() * 300));
+		self.reset();
 	};
 	this.tick = function (n) {
 		if (!n) n = 1;

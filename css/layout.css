@@ -29,6 +29,14 @@ body {
 }
 
 
+#controls {
+	position: absolute;
+	width: 400px;
+	height: 50px;
+	top: 402px;
+}
+
+
 #arena {
 	position: absolute;
 	width: 400px;
