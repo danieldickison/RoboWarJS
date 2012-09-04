@@ -13,7 +13,7 @@ function findLineNumber(lineRanges, ptr) {
 }
 
 var RoboCode = {
-	registerNames: ['hdg', 'spd', 'aim', 'posx', 'posy', 'rng', 'wall', 'bump', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
+	registerNames: ['engy', 'dmg', 'hdg', 'spd', 'aim', 'posx', 'posy', 'rng', 'wall', 'bump', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
 
 	unquoteRegister: function (name) {
 		if (typeof name !== 'string' || name[name.length-1] !== "'") {

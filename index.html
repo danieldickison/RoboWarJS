@@ -28,7 +28,7 @@
 		</div>
 	</div>
 
-	<div id="arena" class="animate">
+	<div id="arena" data-bind="css: {animate: speed().delay > 0}">
 		<div class="layer robots" data-bind="foreach: robots">
 			<div class="robot" data-bind="top: top, left: left, css: {selected: $data === $parent.selectedRobot()}">
 				<div class="icon" data-bind="spriteURL: spriteURL, tint: hue, rotate: heading"></div>

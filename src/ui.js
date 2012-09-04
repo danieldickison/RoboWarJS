@@ -56,7 +56,7 @@ function ViewModel(arena) {
 		{label: 'medium', delay: 100},
 		{label: 'fast', delay: 50},
 		{label: 'blinding', delay: 0},
-		{label: 'headless', delay: -1}
+		{label: '(todo) headless', delay: -1}
 	];
 	this.speed = ko.observable(this.speedOptions[0]);
 	this.projectiles = ko.observableArray();

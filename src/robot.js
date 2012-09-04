@@ -40,6 +40,7 @@ function Robot(init) {
 	this.spriteURL = ko.observable(init.spriteURL);
 	this.damageCapacity = ko.observable(init.damage);
 	this.energyCapacity = ko.observable(init.energy);
+	this.energyRegeneration = ko.observable(init.energyRegeneration);
 	this.damage = ko.observable(init.damage);
 	this.energy = ko.observable(init.energy);
 	this.stackSize = ko.observable(init.stackSize);
@@ -78,16 +79,38 @@ function Robot(init) {
 Robot.prototype.width = 32;
 Robot.prototype.height = 32;
 
-// At the beginning of the tick, we set all of the auto-updating registers.
+// At the beginning of the tick, regenerate energy/damage and set all of the auto-updating registers.
 Robot.prototype.startTick = function () {
-	this.setRegister('posx', this.origin.x());
-	this.setRegister('posy', this.origin.y());
+	this.energy(Math.min(this.energyCapacity(), this.energy() + this.energyRegeneration()));
+	this.setRegister('engy', this.energy());
+	this.setRegister('dmg', this.damage());
+	this.setRegister('posx', Math.round(this.origin.x()));
+	this.setRegister('posy', Math.round(this.origin.y()));
+	this.setRegister('hdg', this.heading());
+	this.setRegister('spd', this.speed());
+	this.setRegister('aim', (this.turretAngle() - this.heading()) % 360);
 };
 // At the end of the tick, we read out the register values and commit the actions to hardware.
 Robot.prototype.endTick = function () {
+	var remainingEnergy = this.energy();
+	function expendEnergy(amount) {
+		if (amount === 0) return 0;
+		var abs = Math.abs(amount);
+		if (abs > remainingEnergy) {
+			amount = (amount > 0 ? 1 : -1) * remainingEnergy;
+			remainingEnergy = 0;
+		}
+		else {
+			remainingEnergy -= abs;
+		}
+		return amount;
+	}
+
 	this.heading(this.getRegister('hdg') % 360);
-	this.speed(this.getRegister('spd'));
 	this.turretAngle((this.getRegister('aim') + this.heading()) % 360);
+	this.speed(expendEnergy(this.getRegister('spd')));
+
+	this.energy(remainingEnergy);
 	this.move();
 };
 
@@ -161,10 +184,11 @@ Robot.defaults = {
 	name: 'new robot',
 	damage: 100,
 	energy: 100,
+	energyRegeneration: 10,
 	stackSize: 100,
 	clockSpeed: 3,
 	spriteURL: 'img/default-robot.png',
-	code: "# new robot\nLoop:\n  aim 5 + aim' store\n  Loop jump\n"
+	code: "# new robot\n11 spd' store\nLoop:\n  aim 5 + aim' store\n  hdg 30 - hdg' store\n  Loop jump\n"
 };
 
 function makeProjectile(shooter, angle, speed, heading) {

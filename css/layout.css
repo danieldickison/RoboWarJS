@@ -57,10 +57,10 @@ body {
 
 #arena.animate > .layer > div {
 	-webkit-transition-property: top, left;
-	-webkit-transition-duration: 0.1s, 0.1s;
+	-webkit-transition-duration: 0.05s, 0.05s;
 	-webkit-transition-timing-function: linear, linear;
 	transition-property: top, left;
-	transition-duration: 0.1s, 0.1s;
+	transition-duration: 0.05s, 0.05s;
 	transition-timing-function: linear, linear;
 }
 
