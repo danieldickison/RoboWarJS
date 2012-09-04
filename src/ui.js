@@ -43,13 +43,13 @@ ko.bindingHandlers.spriteURL = {
 function ViewModel(arena) {
 	var self = this;
 	this.registerNames = RoboCode.registerNames;
-	this.robots = arena.robots;
+	this.arena = arena;
 	this.selectedRobot = ko.observable();
 	this.selectRobot = function (robot, event) {
 		self.selectedRobot(robot);
 	};
 	this.loadRobot = function () {
-		arena.addRobot(new Robot(Robot.defaults));
+		arena.addRobot(new Robot(Robot.defaults, arena));
 	};
 	this.speedOptions = [
 		{label: 'slow', delay: 500},

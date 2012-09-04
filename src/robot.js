@@ -34,8 +34,9 @@ Point.prototype.move = function (heading, distance) {
 	this.y(this.y() + dy);
 };
 
-function Robot(init) {
+function Robot(init, arena) {
 	var self = this;
+	this.arena = arena;
 	this.name = ko.observable(init.name);
 	this.spriteURL = ko.observable(init.spriteURL);
 	this.damageCapacity = ko.observable(init.damage);
@@ -78,6 +79,7 @@ function Robot(init) {
 
 Robot.prototype.width = 32;
 Robot.prototype.height = 32;
+Robot.prototype.radius = 16;
 
 // At the beginning of the tick, regenerate energy/damage and set all of the auto-updating registers.
 Robot.prototype.startTick = function () {
@@ -89,6 +91,8 @@ Robot.prototype.startTick = function () {
 	this.setRegister('hdg', this.heading());
 	this.setRegister('spd', this.speed());
 	this.setRegister('aim', (this.turretAngle() - this.heading()) % 360);
+	this.setRegister('bullet', 0);
+	this.setRegister('missile', 0);
 };
 // At the end of the tick, we read out the register values and commit the actions to hardware.
 Robot.prototype.endTick = function () {
@@ -108,10 +112,20 @@ Robot.prototype.endTick = function () {
 
 	this.heading(this.getRegister('hdg') % 360);
 	this.turretAngle((this.getRegister('aim') + this.heading()) % 360);
+
 	this.speed(expendEnergy(this.getRegister('spd')));
+
+	var bullet = this.getRegister('bullet'),
+		missile = this.getRegister('missile');
+	if (bullet > 0) this.fireProjectile(Bullet, expendEnergy(bullet));
+	if (missile > 0) this.fireProjectile(Missile, expendEnergy(missile));
 
 	this.energy(remainingEnergy);
 	this.move();
+};
+Robot.prototype.fireProjectile = function(type, energy) {
+	var projectile = new type(this, this.turretAngle(), energy);
+	this.arena.addProjectile(projectile);
 };
 
 Robot.prototype.executeInstruction = function () {
@@ -184,14 +198,36 @@ Robot.defaults = {
 	name: 'new robot',
 	damage: 100,
 	energy: 100,
-	energyRegeneration: 10,
+	energyRegeneration: 5,
 	stackSize: 100,
-	clockSpeed: 3,
+	clockSpeed: 5,
 	spriteURL: 'img/default-robot.png',
-	code: "# new robot\n11 spd' store\nLoop:\n  aim 5 + aim' store\n  hdg 30 - hdg' store\n  Loop jump\n"
+	code: "# I run in circles\n11 spd' store\nLoop:\n  aim 5 + aim' store\n  hdg 30 - hdg' store\n  Loop jump\n"
 };
 
-function makeProjectile(shooter, angle, speed, heading) {
+
+function makeProjectile(shooter, speed, heading, damage) {
 	this.shooter = shooter;
-	makeMovable.call(this);
+	this.damage = damage;
+	var x = shooter.origin.x(),
+		y = shooter.origin.y();
+	makeMovable.call(this, speed, heading, x, y);
+	// Move the projectile away from the shooter's center.
+	this.origin.move(heading, shooter.radius);
 }
+
+function Bullet(shooter, heading, energy) {
+	makeProjectile.call(this, shooter, 10, heading, energy);
+}
+Bullet.prototype.type = 'bullet';
+Bullet.prototype.width = 5;
+Bullet.prototype.height = 5;
+Bullet.prototype.radius = 2;
+
+function Missile(shooter, heading, energy) {
+	makeProjectile.call(this, shooter, 5, heading, 2*energy);
+}
+Missile.prototype.type = 'missile';
+Missile.prototype.width = 8;
+Missile.prototype.height = 8;
+Missile.prototype.radius = 2;

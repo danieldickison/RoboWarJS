@@ -84,10 +84,19 @@ body {
 	background-repeat: no-repeat;
 }
 
-#arena .projectile {
-	width: 1px;
+#arena .projectiles > .bullet {
+	width: 4px;
+	height: 4px;
+	background-image: url(../img/bullet.png);
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+#arena .projectiles > .missile {
+	width: 8px;
 	height: 8px;
-	background: red;
+	background-image: url(../img/missile.png);
+	background-position: center center;
+	background-repeat: no-repeat;
 }
 
 

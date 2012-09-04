@@ -13,7 +13,7 @@
 </head>
 <body>
 	<div id="robot-list">
-		<ol data-bind="foreach: robots">
+		<ol data-bind="foreach: arena.robots">
 			<li data-bind="click: $parent.selectRobot, css: {selected: $data === $parent.selectedRobot()}">
 				<div class="icon" data-bind="spriteURL: spriteURL, tint: hue"></div>
 				<div class="name" data-bind="text: name"></div>
@@ -24,18 +24,18 @@
 			</li>
 		</ol>
 		<div class="button-bar">
-			<button data-bind="click: loadRobot, disable: robots().length >= 6">+</button>
+			<button data-bind="click: loadRobot, disable: arena.robots().length >= 6">+</button>
 		</div>
 	</div>
 
 	<div id="arena" data-bind="css: {animate: speed().delay > 0}">
-		<div class="layer robots" data-bind="foreach: robots">
+		<div class="layer robots" data-bind="foreach: arena.robots">
 			<div class="robot" data-bind="top: top, left: left, css: {selected: $data === $parent.selectedRobot()}">
 				<div class="icon" data-bind="spriteURL: spriteURL, tint: hue, rotate: heading"></div>
 				<div class="turret" data-bind="rotate: turretAngle"></div>
 			</div>
 		</div>
-		<div class="layer projectiles" data-bind="foreach: projectiles">
+		<div class="layer projectiles" data-bind="foreach: arena.projectiles">
 			<div data-bind="top: top, left: left, tint: shooter.hue, rotate: heading, attr: {class: type}">
 			</div>
 		</div>
