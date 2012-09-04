@@ -6,6 +6,10 @@ function rad2deg(rad) {
     return rad / Math.PI * 180;
 }
 
+function normalizeDegree(deg) {
+    return ((360 + (deg % 360)) % 360);
+}
+
 function makeMovable(speed, heading, x, y) {
     var self = this;
     this.speed = ko.observable(speed);
@@ -20,6 +24,14 @@ function makeMovable(speed, heading, x, y) {
     this.left = ko.computed(function () {
         return self.origin.x() - 0.5*self.width;
     });
+    this.collisionTest = function (other) {
+        var radius1 = self.radius,
+            radius2 = other.radius,
+            totalRadius = radius1 + radius2,
+            dx = self.origin.x() - other.origin.x(),
+            dy = self.origin.y() - other.origin.y();
+        return (dx*dx + dy*dy) < (totalRadius * totalRadius);
+    };
 }
 
 function Point(x, y) {
@@ -51,6 +63,11 @@ function Robot(init, arena) {
     this.hue = ko.computed(function () {
         return (self.number() * 210) % 360;
     });
+    this.dead = ko.computed(function () {
+        return self.damage() <= 0;
+    });
+    this.collidingRobots = [];
+    this.collidingWalls = {left: 0, right: 0, top: 0, bottom: 0};
     makeMovable.call(this, 0, init.heading || 0, init.x || 50, init.y || 50);
 
     // RoboCode stuff
@@ -90,12 +107,13 @@ Robot.prototype.startTick = function () {
     this.setRegister('posy', Math.round(this.origin.y()));
     this.setRegister('hdg', this.heading());
     this.setRegister('spd', this.speed());
-    this.setRegister('aim', (this.turretAngle() - this.heading()) % 360);
-    this.setRegister('bullet', 0);
-    this.setRegister('missile', 0);
+    this.setRegister('aim', normalizeDegree(this.turretAngle() - this.heading()));
+    this.setRegister('bllt', 0);
+    this.setRegister('mssl', 0);
 };
 // At the end of the tick, we read out the register values and commit the actions to hardware.
 Robot.prototype.endTick = function () {
+    var self = this;
     var remainingEnergy = this.energy();
     function expendEnergy(amount) {
         if (amount === 0) return 0;
@@ -110,22 +128,51 @@ Robot.prototype.endTick = function () {
         return amount;
     }
 
-    this.heading(this.getRegister('hdg') % 360);
-    this.turretAngle((this.getRegister('aim') + this.heading()) % 360);
+    this.heading(normalizeDegree(this.getRegister('hdg')));
+    this.turretAngle(normalizeDegree(this.getRegister('aim') + this.heading()));
 
-    this.speed(expendEnergy(this.getRegister('spd')));
+    // We can't move if we're heading into a colliding wall or robot.
+    var collision =
+            (this.collidingWalls.top && this.heading() > 180) ||
+            (this.collidingWalls.bottom && this.heading() < 180) ||
+            (this.collidingWalls.left && this.heading() > 90 && this.heading() < 270) ||
+            (this.collidingWalls.right && (this.heading() < 90 || this.heading() > 270));
+    this.collidingRobots.forEach(function (robot) {
+        var dx = robot.origin.x() - self.origin.x(),
+            dy = robot.origin.y() - self.origin.y(),
+            da = normalizeDegree(self.heading() - rad2deg(Math.atan2(dy, dx)));
+        if (da < 90 || da > 270) collision = true;
+    });
+    this.speed(collision ? 0 : expendEnergy(this.getRegister('spd')));
 
-    var bullet = this.getRegister('bullet'),
-        missile = this.getRegister('missile');
+    var bullet = this.getRegister('bllt'),
+        missile = this.getRegister('mssl');
     if (bullet > 0) this.fireProjectile(Bullet, expendEnergy(bullet));
     if (missile > 0) this.fireProjectile(Missile, expendEnergy(missile));
 
     this.energy(remainingEnergy);
     this.move();
+
+    // Reset collisions so arena can recalculate after each robot moves.
+    this.collidingRobots = [];
 };
 Robot.prototype.fireProjectile = function(type, energy) {
     var projectile = new type(this, this.turretAngle(), energy);
     this.arena.addProjectile(projectile);
+};
+
+Robot.prototype.takeProjectileDamage = function (projectile) {
+    this.damage(this.damage() - projectile.damage);
+    if (this.dead()) {
+        projectile.shooter.kills.push(this);
+    }
+};
+Robot.prototype.takeCollisionDamage = function () {
+    if (this.collidingWalls.left || this.collidingWalls.right ||
+        this.collidingWalls.top || this.collidingWalls.bottom ||
+        this.collidingRobots.length > 0) {
+        this.damage(this.damage() - Robot.collisionDamage);
+    }
 };
 
 Robot.prototype.executeInstruction = function () {
@@ -164,6 +211,9 @@ Robot.prototype.getRegister = function (name) {
     if (!this.registers.hasOwnProperty(name)) {
         throw 'Unknown register: ' + name;
     }
+    if (name === 'rand') {
+        return Math.floor(Math.random() * 360);
+    }
     return this.registers[name]();
 };
 Robot.prototype.setRegister = function (name, value) {
@@ -185,6 +235,8 @@ Robot.prototype.reset = function () {
     this.speed(0);
     this.heading(0);
     this.turretAngle(0);
+    this.energy(this.energyCapacity());
+    this.damage(this.damageCapacity());
     if (this.instructions().length === 0) {
         this.compile();
     }
@@ -194,6 +246,8 @@ Robot.prototype.highlightInstruction = function (ptr) {
     console.log('TODO: highlight source line ' + lineNumber);
 };
 
+Robot.collisionDamage = 2;
+
 Robot.defaults = {
     name: 'new robot',
     damage: 100,
@@ -202,7 +256,7 @@ Robot.defaults = {
     stackSize: 100,
     clockSpeed: 5,
     spriteURL: 'img/default-robot.png',
-    code: "# I run in circles\n11 spd' store\nLoop:\n  aim 5 + aim' store\n  hdg 30 - hdg' store\n  Loop jump\n"
+    code: "# I run in circles\nLoop: \n  10 spd' store\n  aim 5 + aim' store\n  hdg rand 6 / - hdg' store\n  Loop jump\n"
 };
 
 
