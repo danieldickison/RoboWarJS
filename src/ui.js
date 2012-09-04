@@ -40,6 +40,20 @@ ko.bindingHandlers.spriteURL = {
 	}
 };
 
+ko.bindingHandlers.scrollIntoViewWhen = {
+	update: function (element, valueAccessor, allBindingsAccessor, model, context) {
+		if (!ko.utils.unwrapObservable(valueAccessor())) return;
+		var $element = $(element),
+			top = $element.position().top,
+			bottom = top + $element.height(),
+			scrollTop = $element.parent().scrollTop(),
+            scrollHeight = $element.parent().height();
+		if (top < 0 || bottom > scrollHeight) {
+            $element.parent().scrollTop(scrollTop + top);
+        }
+	}
+};
+
 function ViewModel(arena) {
 	var self = this;
 	this.registerNames = RoboCode.registerNames;
@@ -64,6 +78,9 @@ function ViewModel(arena) {
 	this.running = ko.observable(null);
 	this.run = function () {
 		if (self.running()) return;
+        if (self.speed().delay <= 0) {
+            self.selectedRobot(null);
+        }
 		self.running(setInterval(self.tick.bind(self), self.speed().delay));
 	};
 	this.pause = function () {

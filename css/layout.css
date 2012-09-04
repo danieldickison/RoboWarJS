@@ -158,6 +158,7 @@ body {
 	font-family: Menlo, Consolas, Inconsolata, "Bitstream Vera Sans Mono", monospace;
 	height: 175px;
 	overflow: scroll;
+    position: relative;
 }
 #debugger ol.instructions .number,
 #debugger ol.stack .number {

@@ -56,7 +56,10 @@
 		<div class="section instructions">
 			<h4>Instructions</h4>
 			<ol class="instructions" data-bind="foreach: instructions">
-				<li data-bind="css: {current: $index() == $parent.ptr()}, click: $parent.highlightInstruction.bind($parent, $index())">
+				<li data-bind="
+						css: {current: $index() === $parent.ptr()},
+						click: $parent.highlightInstruction.bind($parent, $index()),
+						scrollIntoViewWhen: $index() === $parent.ptr()">
 					<span class="number" data-bind="text: $index"></span>
 					<span class="instruction" data-bind="text: $data"></span>
 				</li>
