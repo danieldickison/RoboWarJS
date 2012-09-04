@@ -17,7 +17,7 @@ var RoboCode = {
 
 	unquoteRegister: function (name) {
 		if (typeof name !== 'string' || name[name.length-1] !== "'") {
-			throw 'Invalid register name' + name;
+			throw 'Invalid register name ' + name;
 		}
 		return name.substr(0, name.length-1);
 	},
@@ -48,7 +48,7 @@ var RoboCode = {
 			args: ['denominator', 'numerator'],
 			doc: 'divides <numerator> by <denominator> and leaves the result on the stack.',
 			exec: function (robot) {
-				robot.push(1/robot.pop() * robot.pop());
+				robot.push(Math.floor(1/robot.pop() * robot.pop()));
 			}
 		},
 		dup: {
@@ -108,7 +108,7 @@ var RoboCode = {
 			args: ['name', 'value'],
 			doc: 'stores <value> in the <name> register.',
 			exec: function (robot) {
-				var name = RoboCode.unquoteRegister(robot.pop()),
+				var name = robot.pop(),
 					value = robot.pop();
 				robot.setRegister(name, value);
 			}
@@ -117,7 +117,7 @@ var RoboCode = {
 			args: ['name'],
 			doc: 'retrieves the value in the <name> register and puts it on the stack.',
 			exec: function (robot) {
-				var name = RoboCode.unquoteRegister(robot.pop());
+				var name = robot.pop();
 				robot.push(robot.getRegister(name));
 			}
 		},
@@ -170,8 +170,9 @@ var RoboCode = {
 
 			for (var j = 0; j < tokens.length; j++) {
 				var token = tokens[j];
-
 				if (!token) continue;
+
+				token = token.toLowerCase();
 
 				// Mark position of labels.
 				if (token[token.length-1] === ':') {
@@ -191,7 +192,7 @@ var RoboCode = {
 					// Check if it's a numeric literal.
 					var number = parseInt(token);
 					if (!isNaN(number)) {
-						instructions.push(token);
+						instructions.push(number);
 					}
 					else {
 						// Check if it's an operator.

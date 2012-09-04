@@ -93,9 +93,9 @@ body {
 }
 #debugger > .section > h4 {
 	width: 100%;
-	font-size: 14px;
+	font-size: 13px;
+	line-height: 24px;
 	margin: 0;
-	padding: 5px 0;
 	text-align: center;
 	border-bottom: solid 1px gray;
 }
@@ -132,20 +132,38 @@ body {
 	margin: 0;
 }
 
-#debugger ol.instructions {
+#debugger ol.instructions,
+#debugger ol.stack {
 	list-style: none;
 	padding: 0;
+	margin: 0;
 	font-size: 12px;
 	font-family: Menlo, Consolas, Inconsolata, "Bitstream Vera Sans Mono", monospace;
+	height: 175px;
+	overflow: scroll;
 }
-#debugger ol.instructions .number {
+#debugger ol.instructions .number,
+#debugger ol.stack .number {
 	display: inline-block;
 	width: 30px;
 	text-align: right;
 	color: gray;
 }
-#debugger ol.instructions > li.current {
+#debugger ol.instructions > li.current,
+#debugger ol.stack > li:first-child {
 	background-color: #cceeff;
+}
+#debugger ol.instructions > li:first-child,
+#debugger ol.stack > li:first-child {
+	margin-top: 10px;
+}
+#debugger ol.instructions > li:last-child,
+#debugger ol.stack > li:last-child {
+	margin-bottom: 10px;
+}
+
+#debugger ol.stack {
+	height: 125px;
 }
 
 #debugger ul.registers {

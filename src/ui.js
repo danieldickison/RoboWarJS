@@ -40,24 +40,23 @@ ko.bindingHandlers.spriteURL = {
 	}
 };
 
-function ViewModel() {
+function ViewModel(arena) {
 	var self = this;
 	this.registerNames = RoboCode.registerNames;
-	this.robots = ko.observableArray();
+	this.robots = arena.robots;
 	this.selectedRobot = ko.observable();
 	this.selectRobot = function (robot, event) {
 		self.selectedRobot(robot);
 	};
 	this.loadRobot = function () {
-		var robot = new Robot(Robot.defaults),
-			number = self.robots.push(robot);
-		robot.number(number);
+		arena.addRobot(new Robot(Robot.defaults));
 	};
 
 	this.projectiles = ko.observableArray();
 }
 
-var viewModel = new ViewModel();
+var arena = new Arena,
+	viewModel = new ViewModel(arena);
 
 window.onload = function () {
 	ko.applyBindings(viewModel);

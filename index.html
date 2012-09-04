@@ -5,6 +5,7 @@
 	<script type="text/javascript" src="lib/knockout-2.1.0.debug.js"></script>
 	<script type="text/javascript" src="src/code.js"></script>
 	<script type="text/javascript" src="src/robot.js"></script>
+	<script type="text/javascript" src="src/arena.js"></script>
 	<script type="text/javascript" src="src/ui.js"></script>
 	<script type="text/javascript">
 		var DEBUG = !!window.location.href.indexOf(/(\?&)debug/);
@@ -54,7 +55,10 @@
 		<div class="section stack">
 			<h4>Stack</h4>
 			<ol class="stack" data-bind="foreach: stack">
-				<li data-bind="$data"></li>
+				<li>
+					<span class="number" data-bind="text: $index"></span>
+					<span class="value" data-bind="text: $data"></span>
+				</li>
 			</ol>
 		</div>
 
