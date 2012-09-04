@@ -22,6 +22,9 @@ function Arena() {
         robot.number(number);
         self.reset();
     };
+    this.removeRobot = function (robot) {
+        self.robots.remove(robot);
+    };
     this.addProjectile = function (projectile) {
         self.projectiles.push(projectile);
     };

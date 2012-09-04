@@ -32,6 +32,7 @@
         </ol>
         <div class="button-bar">
             <button data-bind="click: loadRobot, disable: arena.robots().length >= 6">+</button>
+            <button data-bind="click: removeRobot, enable: selectedRobot">-</button>
         </div>
     </div>
 

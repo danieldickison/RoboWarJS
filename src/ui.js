@@ -65,6 +65,9 @@ function ViewModel(arena) {
     this.loadRobot = function () {
         arena.addRobot(new Robot(Robot.defaults, arena));
     };
+    this.removeRobot = function () {
+        arena.removeRobot(self.selectedRobot());
+    };
     this.speedOptions = [
         {label: 'slow', delay: 500},
         {label: 'medium', delay: 100},
