@@ -37,12 +37,17 @@ function Arena() {
 
         // Process robots.
         self.livingRobots().forEach(function (robot) {
-            robot.startTick();
-            var cycles = robot.clockSpeed();
-            for (var cycle = 0; cycle < cycles; cycle++) {
-                robot.executeInstruction();
+            try {
+                robot.startTick();
+                var cycles = robot.clockSpeed();
+                for (var cycle = 0; cycle < cycles; cycle++) {
+                    robot.executeInstruction();
+                }
+                robot.endTick();
             }
-            robot.endTick();
+            catch (e) {
+                robot.runtimeError(e);
+            }
         });
 
         // Move projectiles and do collision testing of projectiles to robots.

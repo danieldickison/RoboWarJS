@@ -64,8 +64,9 @@ function Robot(init, arena) {
         return (self.number() * 210) % 360;
     });
     this.kills = ko.observableArray();
+    this.runtimeError = ko.observable();
     this.dead = ko.computed(function () {
-        return self.damage() <= 0;
+        return self.damage() <= 0 || self.runtimeError();
     });
     this.collidingRobots = [];
     this.collidingWalls = {left: 0, right: 0, top: 0, bottom: 0};
@@ -218,6 +219,9 @@ Robot.prototype.takeCollisionDamage = function () {
 
 Robot.prototype.executeInstruction = function () {
     var instruction = this.instructions()[this.ptr()];
+    if (typeof instruction === 'undefined') {
+        throw 'Bad PC: ' + this.ptr();
+    }
     this.ptr(this.ptr() + 1);
     if (typeof instruction === 'number') {
         this.push(instruction);
@@ -278,6 +282,7 @@ Robot.prototype.reset = function () {
     this.turretAngle(0);
     this.energy(this.energyCapacity());
     this.damage(this.damageCapacity());
+    this.runtimeError(null);
     this.kills([]);
     if (this.instructions().length === 0) {
         this.compile();

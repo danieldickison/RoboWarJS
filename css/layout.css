@@ -41,6 +41,9 @@ body {
     font-size: 9px;
     color: gray;
 }
+#robot-list .status .error {
+    color: red;
+}
 #robot-list .status .label {
     display: inline-block;
     width: 40px;

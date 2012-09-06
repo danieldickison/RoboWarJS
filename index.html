@@ -27,7 +27,10 @@
                         <span class="label">Damage</span>
                         <span class="bar red"><span data-bind="style: {width: (100 * damage() / damageCapacity()) + '%'}"></span></span>
                     </div>
-                    <span data-bind="visible: dead">dead</span>
+                    <span data-bind="visible: dead">
+                        dead
+                        <span class="error" data-bind="text: runtimeError"></span>
+                    </span>
                 </div>
             </li>
         </ol>
