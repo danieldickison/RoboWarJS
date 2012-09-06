@@ -153,8 +153,13 @@ function Arena() {
     };
     function debugOneInstruction() {
         try {
-            debugContext.robot.executeOneInstruction();
-            debugContext.instruction++;
+            var flag = debugContext.robot.executeOneInstruction();
+            if (flag !== 'freebie' && flag !== 'debug') {
+                debugContext.instruction++;
+            }
+            if (flag === 'sync') {
+                return true;
+            }
         }
         catch (e) {
             debugContext.robot.runtimeError(e);

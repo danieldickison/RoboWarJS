@@ -23,6 +23,7 @@ var RoboCode = {
     },
 
     operators: {
+        // Math
         '+': {
             args: ['addend1', 'addend2'],
             doc: 'adds <addend1> and <addend2> and leaves the result on the stack.',
@@ -51,6 +52,108 @@ var RoboCode = {
                 robot.push(Math.floor(1/robot.pop() * robot.pop()));
             }
         },
+        sqrt: {
+            args: ['number'],
+            doc: 'puts the square root of <number> on the stack.',
+            exec: function (robot) {
+                robot.push(Math.floor(Math.sqrt(robot.pop())));
+            }
+        },
+
+        // Trigonometry
+        sin: {
+            args: ['hypotenuse', 'degrees'],
+            doc: 'puts the length of the opposite leg of a right triangle with the given <hypotenuse> and <degrees>, i.e. hypotenuse * sin(degrees).',
+            exec: function (robot) {
+                var hyp = robot.pop(),
+                    deg = robot.pop();
+                robot.push(Math.floor(hyp * Math.sin(deg2rad(deg))));
+            }
+        },
+        cos: {
+            args: ['hypotenuse', 'degrees'],
+            doc: 'puts the length of the adjacent leg of a right triangle with the given <hypotenuse> and <degrees>, i.e. hypotenuse * cos(degrees).',
+            exec: function (robot) {
+                var hyp = robot.pop(),
+                    deg = robot.pop();
+                robot.push(Math.floor(hyp * Math.cos(deg2rad(deg))));
+            }
+        },
+        tan: {
+            args: ['adjacent', 'degrees'],
+            doc: 'puts the length of the opposite leg of a right triangle with the given <adjacent> leg and <degrees>, i.e. adjacent * tan(degrees).',
+            exec: function (robot) {
+                var adj = robot.pop(),
+                    deg = robot.pop();
+                robot.push(Math.floor(adj * Math.tan(deg2rad(deg))));
+            }
+        },
+        asin: {
+            args: ['opposite', 'hypotenuse'],
+            doc: 'puts the angle of a right triangle with the given <opposite> leg and <hypotenuse>, i.e. arcsin(opposite/hypotenuse), range [-90, 90].',
+            exec: function (robot) {
+                var opp = robot.pop(),
+                    hyp = robot.pop();
+                robot.push(Math.floor(rad2deg(Math.asin(opp/hyp))));
+            }
+        },
+        asin: {
+            args: ['adjacent', 'hypotenuse'],
+            doc: 'puts the angle of a right triangle with the given <adjacent> leg and <hypotenuse>, i.e. arccos(adjacent/hypotenuse), range [0, 180].',
+            exec: function (robot) {
+                var adj = robot.pop(),
+                    hyp = robot.pop();
+                robot.push(Math.floor(rad2deg(Math.acos(adj/hyp))));
+            }
+        },
+        atan: {
+            args: ['opposite', 'adjacent'],
+            doc: 'puts the angle of a right triangle with the given <opposite> and <adjacent> legs, i.e. arctan(opposite/adjacent), range (-180, 180].',
+            exec: function (robot) {
+                var opp = robot.pop(),
+                    adj = robot.pop();
+                robot.push(Math.floor(rad2deg(Math.atan2(opp, adj))));
+            }
+        },
+
+        // Boolean
+        and: {
+            args: ['bool1', 'bool2'],
+            doc: 'puts <bool2> on the stack if both <bool1> and <bool2> are non-zero; puts 0 otherwise.',
+            exec: function (robot) {
+                robot.push((robot.pop() && robot.pop()) || 0);
+            }
+        },
+        or: {
+            args: ['bool1', 'bool2'],
+            doc: 'puts <bool1> on the stack if either <bool1> or <bool2> is non-zero; puts 0 otherwise.',
+            exec: function (robot) {
+                robot.push(robot.pop() || robot.pop() || 0);
+            }
+        },
+        not: {
+            args: ['bool'],
+            doc: 'puts 1 on the stack if <bool> is 0; puts 0 otherwise.',
+            exec: function (robot) {
+                robot.push(robot.pop() || robot.pop() ? 1 : 0);
+            }  
+        },
+
+        // Misc.
+        drop: {
+            args: ['value'],
+            doc: 'discards the top <value> on the stack.',
+            exec: function (robot) {
+                robot.pop();
+            }
+        },
+        dropall: {
+            args: [],
+            doc: 'discards all values on the stack.',
+            exec: function (robot) {
+                robot.stack.removeAll();
+            }
+        },
         dup: {
             args: ['value'],
             doc: 'duplicates <value> on the stack.',
@@ -60,6 +163,52 @@ var RoboCode = {
                 robot.push(value);
             }
         },
+        swap: {
+            args: ['value1', 'value2'],
+            doc: 'swaps <value1> and <value2> on the stack.',
+            exec: function (robot) {
+                var value1 = robot.pop(),
+                    value2 = robot.pop();
+                robot.push(value1);
+                robot.push(value2);
+            }
+        },
+        noop: {
+            args: [],
+            doc: 'does nothing.',
+            exec: function (robot) {}
+        },
+        sync: {
+            args: [],
+            doc: 'sleeps until the end of the tick.',
+            exec: function (robot) { throw 'robot should handle sync instruction'; }
+        },
+        debug: {
+            args: [],
+            doc: 'pauses the game and invokes the debugger at the beginning of the next tick.',
+            exec: function (robot) { throw 'robot should handle debug instruction'; }
+        },
+
+        // Working with registers.
+        store: {
+            args: ['name', 'value'],
+            doc: 'stores <value> in the <name> register.',
+            exec: function (robot) {
+                var name = robot.pop(),
+                    value = robot.pop();
+                robot.setRegister(name, value);
+            }
+        },
+        recall: {
+            args: ['name'],
+            doc: 'retrieves the value in the <name> register and puts it on the stack.',
+            exec: function (robot) {
+                var name = robot.pop();
+                robot.push(robot.getRegister(name));
+            }
+        },
+
+        // Branching and jumping.
         ifg: {
             args: ['ptr', 'cond'],
             doc: 'jumps to <ptr> if <cond> is not 0.',
@@ -102,23 +251,6 @@ var RoboCode = {
                     cond = robot.pop();
                 robot.push(robot.ptr());
                 robot.gotoInstruction(cond ? yesptr : noptr);
-            }
-        },
-        store: {
-            args: ['name', 'value'],
-            doc: 'stores <value> in the <name> register.',
-            exec: function (robot) {
-                var name = robot.pop(),
-                    value = robot.pop();
-                robot.setRegister(name, value);
-            }
-        },
-        recall: {
-            args: ['name'],
-            doc: 'retrieves the value in the <name> register and puts it on the stack.',
-            exec: function (robot) {
-                var name = robot.pop();
-                robot.push(robot.getRegister(name));
             }
         },
         jump: {

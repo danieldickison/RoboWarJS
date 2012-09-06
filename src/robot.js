@@ -46,9 +46,10 @@ Point.prototype.move = function (heading, distance) {
     this.y(this.y() + dy);
 };
 
-function Robot(init, arena) {
+function Robot(init, arena, viewModel) {
     var self = this;
     this.arena = arena;
+    this.viewModel = viewModel;
     this.name = ko.observable(init.name);
     this.spriteURL = ko.observable(init.spriteURL);
     this.damageCapacity = ko.observable(init.damage);
@@ -236,7 +237,9 @@ Robot.prototype.takeCollisionDamage = function () {
 
 Robot.prototype.executeOneCycle = function () {
     for (var i = 0; i < this.clockSpeed(); i++) {
-        this.executeOneInstruction();
+        var flag = this.executeOneInstruction();
+        if (flag === 'freebie') i--;
+        else if (flag === 'sync' || flag === 'debug') break;
     }
 };
 Robot.prototype.executeOneInstruction = function () {
@@ -245,6 +248,20 @@ Robot.prototype.executeOneInstruction = function () {
         throw 'Bad PC: ' + this.ptr();
     }
     this.ptr(this.ptr() + 1);
+
+    // Handle special instructions 'debug' and 'sync'.
+    if (instruction === 'debug') {
+        if (this.viewModel && this.viewModel.selectedRobot() === this) {
+            this.viewModel.pause(); // This will pause on the next tick if currently running.
+            return 'debug'; // Caller should treat it like 'sync' unless already debugging.
+        }
+        return 'freebie'; // Caller should not count this instruction's cpu cost.
+    }
+    else if (instruction === 'sync') {
+        return 'sync'; // Caller should skip execution of this robot until the next tick.
+    }
+
+    // Handle "normal" instructions and literals.
     if (typeof instruction === 'number') {
         this.push(instruction);
     }

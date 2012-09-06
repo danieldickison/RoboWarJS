@@ -64,7 +64,7 @@ function ViewModel(arena) {
         self.selectedRobot(robot);
     };
     this.loadRobot = function () {
-        var robot = new Robot(Robot.defaults, arena);
+        var robot = new Robot(Robot.defaults, arena, self);
         arena.addRobot(robot);
         robot.code(Robot.examplePrograms[robot.number() % Robot.examplePrograms.length]);
         robot.compile();
