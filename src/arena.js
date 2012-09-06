@@ -49,11 +49,6 @@ function Arena() {
 
         // Do collision testing of projectiles to the remaining robots.
         self.projectiles.remove(function (projectile) {
-            if (projectile.origin.x() < 0 || projectile.origin.x() > self.width ||
-                projectile.origin.y() < 0 || projectile.origin.y() > self.height) {
-                return true;
-            }
-
             var robots = self.livingRobots();
             for (var i = 0; i < robots.length; i++) {
                 var robot = robots[i];
@@ -61,6 +56,10 @@ function Arena() {
                     robot.takeProjectileDamage(projectile);
                     return true;
                 }
+            }
+            if (projectile.origin.x() < 0 || projectile.origin.x() > self.width ||
+                projectile.origin.y() < 0 || projectile.origin.y() > self.height) {
+                return true;
             }
             return false;
         });
