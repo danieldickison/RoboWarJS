@@ -2,6 +2,7 @@ function Arena() {
     var self = this;
     this.width = 400;
     this.height = 400;
+    this.maxRobots = 6;
     this.robots = ko.observableArray();
     this.projectiles = ko.observableArray();
     this.livingRobots = ko.computed(function () {
@@ -19,7 +20,7 @@ function Arena() {
     };
     this.addRobot = function (robot) {
         var number = self.robots.push(robot);
-        robot.number(number);
+        robot.number(number - 1);
         self.reset();
     };
     this.removeRobot = function (robot) {
