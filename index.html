@@ -35,8 +35,8 @@
             </li>
         </ol>
         <div class="button-bar">
-            <button data-bind="click: loadRobot, disable: arena.robots().length >= arena.maxRobots">+</button>
-            <button data-bind="click: removeRobot, enable: selectedRobot">-</button>
+            <button data-bind="click: loadRobot, enable: arena.robots().length < arena.maxRobots && !arena.time()">+</button>
+            <button data-bind="click: removeRobot, enable: selectedRobot() && !arena.time()">-</button>
         </div>
     </div>
 

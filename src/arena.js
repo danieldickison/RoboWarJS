@@ -13,6 +13,7 @@ function Arena() {
     });
     this.reset = function () {
         self.time(0);
+        debugContext = null;
         self.robots().forEach(function (robot) {
             robot.reset();
             robot.origin.x(Math.floor(50 + Math.random() * 300));
