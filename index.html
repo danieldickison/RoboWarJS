@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <head>
+    <title>RoboWarJS</title>
     <link type="text/css" rel="stylesheet" href="css/layout.css"/>
     <script type="text/javascript" src="lib/jquery-1.8.1.min.js"></script>
     <script type="text/javascript" src="lib/knockout-2.1.0.debug.js"></script>
@@ -36,7 +37,7 @@
         </div>
     </div>
 
-    <div id="arena" data-bind="css: {animate: speed().delay > 0}">
+    <div id="arena" data-bind="css: {animate: speed().delay > 0, 'flipped-y': flippedY}">
         <div class="layer robots" data-bind="foreach: arena.livingRobots">
             <div class="robot" data-bind="top: top, left: left, css: {selected: $data === $parent.selectedRobot()}">
                 <div class="icon" data-bind="spriteURL: spriteURL, tint: hue, rotate: heading"></div>

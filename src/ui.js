@@ -58,6 +58,7 @@ function ViewModel(arena) {
     var self = this;
     this.registerNames = RoboCode.registerNames;
     this.arena = arena;
+    this.flippedY = ko.observable(true);
     this.selectedRobot = ko.observable();
     this.selectRobot = function (robot, event) {
         self.selectedRobot(robot);
