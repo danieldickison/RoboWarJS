@@ -100,8 +100,43 @@ Robot.prototype.width = 32;
 Robot.prototype.height = 32;
 Robot.prototype.radius = 16;
 
-// At the beginning of the tick, regenerate energy/damage and set all of the auto-updating registers.
 Robot.prototype.startTick = function () {
+    // Computed the distance and angle to every other robot and check for collisions.
+    var self = this;
+    this.arena.livingRobots().forEach(function (robot) {
+        if (robot !== self) {
+            var info = self.otherRobotInfo[robot.number()],
+                d = info.distance;
+            if (d === null) {
+                var dx = robot.origin.x() - self.origin.x(),
+                    dy = robot.origin.y() - self.origin.y(),
+                    otherInfo = robot.otherRobotInfo[self.number()];
+                info.distance = d = Math.sqrt(dx*dx + dy*dy);
+                info.angle = normalizeDegree(rad2deg(Math.atan2(dy, dx)));
+                info.spread = rad2deg(Math.asin(robot.radius / d));
+
+                // Cache the info for the other robot so they don't have to duplicate tho computation.
+                otherInfo.distance = d;
+                otherInfo.angle = normalizeDegree(info.angle + 180);
+                otherInfo.spread = info.spread; // NOTE: this assumes both robots have the same radius.
+
+                if (d < 2*self.radius) {
+                    self.collidingRobots.push(info);
+                    robot.collidingRobots.push(otherInfo);
+                }
+            }
+        }
+    });
+
+    // Check wall collisions.
+    this.collidingWalls.left = this.origin.x() < this.radius;
+    this.collidingWalls.right = this.origin.x() > this.arena.width - this.radius;
+    this.collidingWalls.top = this.origin.y() < this.radius;
+    this.collidingWalls.bottom = this.origin.y() > this.arena.height - this.radius;
+};
+
+// After assessing damage, regenerate energy/damage and set all of the auto-updating registers.
+Robot.prototype.updateRegisters = function () {
     var turretAngle = this.turretAngle();
 
     this.energy(Math.min(this.energyCapacity(), this.energy() + this.energyRegeneration()));
@@ -117,38 +152,20 @@ Robot.prototype.startTick = function () {
     this.setRegister('bllt', 0);
     this.setRegister('mssl', 0);
 
-    // Computed angle to every other robot and use it to see if it's in sight (for the rng register).
-    // Also, stash the angle in the other robot object because we'll use it later during collision detection.
-    var self = this,
-        closest = 99999;
-    this.arena.livingRobots().forEach(function (robot) {
-        if (robot !== self) {
-            var info = self.otherRobotInfo[robot.number()],
-                d = info.distance,
-                da = info.angle,
-                spread = info.spread;
-            if (d === null) {
-                var dx = robot.origin.x() - self.origin.x(),
-                    dy = robot.origin.y() - self.origin.y(),
-                    otherInfo = robot.otherRobotInfo[self.number()];
-                info.distance = d = Math.sqrt(dx*dx + dy*dy);
-                info.angle = da = normalizeDegree(rad2deg(Math.atan2(dy, dx)));
-                info.spread = spread = rad2deg(Math.asin(robot.radius / d));
+    var closest = 999999;
+    this.otherRobotInfo.forEach(function (info) {
+        // Check if robot is the closest robot in view.
+        if (info.distance !== null &&
+            info.distance < closest &&
+            turretAngle <= info.angle + info.spread &&
+            turretAngle >= info.angle - info.spread) {
 
-                // Cache the info for the other robot so they don't have to duplicate tho computation.
-                otherInfo.distance = d;
-                otherInfo.angle = normalizeDegree(da + 180);
-                otherInfo.spread = spread; // NOTE: this assumes both robots have the same radius.
-            }
-
-            // Check if robot is the closest robot in view.
-            if (d < closest && turretAngle <= da + spread && turretAngle >= da - spread) {
-                closest = d;
-            }
+            closest = info.distance;
         }
     });
-    this.setRegister('rng', closest === 99999 ? 0 : Math.round(closest));
+    this.setRegister('rng', closest === 999999 ? 0 : Math.round(closest));
 };
+
 // At the end of the tick, we read out the register values and commit the actions to hardware.
 Robot.prototype.endTick = function () {
     var self = this;
@@ -175,8 +192,8 @@ Robot.prototype.endTick = function () {
             (this.collidingWalls.bottom && this.heading() < 180) ||
             (this.collidingWalls.left && this.heading() > 90 && this.heading() < 270) ||
             (this.collidingWalls.right && (this.heading() < 90 || this.heading() > 270));
-    this.collidingRobots.forEach(function (robot) {
-        var angle = self.otherRobotInfo[robot.number()].angle;
+    this.collidingRobots.forEach(function (info) {
+        var angle = info.angle;
             da = normalizeDegree(self.heading() - angle);
         if (da < 90 || da > 270) collision = true;
     });
@@ -311,8 +328,25 @@ Robot.defaults = {
     stackSize: 100,
     clockSpeed: 5,
     spriteURL: 'img/default-robot.png',
-    code: "# I run in circles\nLoop: \n  rand 30 / spd' store\n  aim 5 + aim' store\n  hdg rand 6 / - hdg' store\n  3 bllt' store\n  Loop jump\n"
+    code: "Loop:\nLoop jump"
 };
+
+Robot.examplePrograms = [
+"# I run in circles\n\
+    Loop:\n\
+        rand 60 / spd' store\n\
+        hdg rand 6 / - hdg' store\n\
+        3 bllt' store\n\
+        Loop jump",
+"# I'm a stationary turret\n\
+    Loop:\n\
+        rng Shoot if\n\
+        aim 5 + aim' store\n\
+        Loop jump\n\
+    Shoot:\n\
+        10 mssl' store\n\
+        jump"
+];
 
 
 function makeProjectile(shooter, speed, heading, damage) {
@@ -340,3 +374,4 @@ Missile.prototype.type = 'missile';
 Missile.prototype.width = 8;
 Missile.prototype.height = 8;
 Missile.prototype.radius = 2;
+

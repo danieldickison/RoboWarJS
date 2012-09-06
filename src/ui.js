@@ -64,7 +64,10 @@ function ViewModel(arena) {
         self.selectedRobot(robot);
     };
     this.loadRobot = function () {
-        arena.addRobot(new Robot(Robot.defaults, arena));
+        var robot = new Robot(Robot.defaults, arena);
+        arena.addRobot(robot);
+        robot.code(Robot.examplePrograms[robot.number() % Robot.examplePrograms.length]);
+        robot.compile();
     };
     this.removeRobot = function () {
         arena.removeRobot(self.selectedRobot());

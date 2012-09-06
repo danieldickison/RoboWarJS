@@ -30,30 +30,22 @@ function Arena() {
         self.projectiles.push(projectile);
     };
 
-    this.tick = function () {
-        if (self.livingRobots().length <= 1) {
-            return true;
-        }
+    // Do collisions and damage assessment.
+    function preTickPhase() {
+        var robots = self.livingRobots();
 
-        // Process robots.
-        self.livingRobots().forEach(function (robot) {
-            try {
-                robot.startTick();
-                var cycles = robot.clockSpeed();
-                for (var cycle = 0; cycle < cycles; cycle++) {
-                    robot.executeInstruction();
-                }
-                robot.endTick();
-            }
-            catch (e) {
-                robot.runtimeError(e);
-            }
+        // Initialize robots for the tick and calculate collisions.
+        robots.forEach(function (robot) {
+            robot.startTick();
         });
 
-        // Move projectiles and do collision testing of projectiles to robots.
-        self.projectiles.remove(function (projectile) {
-            projectile.move();
+        // Assess collision damage.
+        robots.forEach(function (robot) {
+            robot.takeCollisionDamage();
+        });
 
+        // Do collision testing of projectiles to the remaining robots.
+        self.projectiles.remove(function (projectile) {
             if (projectile.origin.x() < 0 || projectile.origin.x() > self.width ||
                 projectile.origin.y() < 0 || projectile.origin.y() > self.height) {
                 return true;
@@ -70,26 +62,46 @@ function Arena() {
             return false;
         });
 
-        // Do collision testing of robots with other robots.
-        var robots = self.livingRobots();
-        for (var i = 0; i < robots.length-1; i++) {
-            var robot1 = robots[i];
-            for (var j = i+1; j < robots.length; j++) {
-                var robot2 = robots[j];
-                if (robot1.collisionTest(robot2)) {
-                    robot1.collidingRobots.push(robot2);
-                    robot2.collidingRobots.push(robot1);
+        // Update robot registers, which should reflect the new and collisions.
+        self.livingRobots().forEach(function (robot) {
+            robot.updateRegisters();
+        });
+    }
+
+    // Move everything and check to see if there's a winner.
+    function postTickPhase() {
+        self.livingRobots().forEach(function (robot) {
+            robot.endTick();
+        });
+        self.projectiles().forEach(function (projectile) {
+            projectile.move();
+        });
+
+        // Declare a victor or a tie.
+        if (self.livingRobots().length <= 1) {
+            return self.livingRobots()[0] || 'tie';
+        }
+        else {
+            return null;
+        }
+    }
+
+    this.tick = function () {
+        preTickPhase();
+
+        // Process robots.
+        self.livingRobots().forEach(function (robot) {
+            try {
+                var cycles = robot.clockSpeed();
+                for (var cycle = 0; cycle < cycles; cycle++) {
+                    robot.executeInstruction();
                 }
             }
-        }
-
-        // Assess collision damage.
-        robots.forEach(function (robot) {
-            robot.collidingWalls.left = robot.origin.x() < robot.radius;
-            robot.collidingWalls.right = robot.origin.x() > self.width - robot.radius;
-            robot.collidingWalls.top = robot.origin.y() < robot.radius;
-            robot.collidingWalls.bottom = robot.origin.y() > self.height - robot.radius;
-            robot.takeCollisionDamage();
+            catch (e) {
+                robot.runtimeError(e);
+            }
         });
+
+        return postTickPhase();
     };
 }
