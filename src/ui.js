@@ -76,8 +76,8 @@ function ViewModel(arena) {
         {label: 'slow', delay: 500},
         {label: 'medium', delay: 100},
         {label: 'fast', delay: 50},
-        {label: 'blinding', delay: 0},
-        {label: '(todo) headless', delay: -1}
+        {label: 'blinding', delay: 0}
+        //,{label: '(todo) headless', delay: -1}
     ];
     this.speed = ko.observable(this.speedOptions[0]);
     this.projectiles = ko.observableArray();
@@ -88,7 +88,13 @@ function ViewModel(arena) {
         if (self.speed().delay <= 0) {
             self.selectedRobot(null);
         }
-        self.running(setInterval(self.tick.bind(self), self.speed().delay));
+        endDebug();
+        self.running(setInterval(doTick, self.speed().delay));
+        function doTick() {
+            if (arena.tick()) {
+                self.pause();
+            }
+        }
     };
     this.pause = function () {
         if (!self.running()) return;
@@ -96,13 +102,20 @@ function ViewModel(arena) {
         self.running(null);
     };
     this.tick = function () {
-        if (arena.tick()) {
-            self.pause();
-        }
+        endDebug();
+        arena.tick();
     };
-    this.oneInstruction = function () {
-        // TODO
+    this.debugPhase = ko.observable();
+    this.debugInstruction = ko.observable(0);
+    this.debugStep = function () {
+        var context = arena.debugStep(self.selectedRobot());
+        self.debugPhase(context.phase);
+        self.debugInstruction(context.instruction);
     };
+    function endDebug() {
+        arena.endDebug();
+        self.debugPhase(null);
+    }
     this.reset = arena.reset.bind(arena);
 }
 

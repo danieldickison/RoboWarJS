@@ -60,13 +60,24 @@
             <button data-bind="click: pause, visible: running">Pause</button>
             <button data-bind="click: reset, visible: !running()">Reset</button>
             <button data-bind="click: tick, visible: !running()">Tick</button>
-            <button data-bind="click: oneInstruction, visible: !running()">One Instruction</button>
+            <button data-bind="click: debugStep, visible: !running(), enable: selectedRobot">Step</button>
+        </div>
+        <div class="status">
+            Tick: <span data-bind="text: arena.time"></span>
         </div>
     </div>
 
     <div id="debugger" data-bind="with: selectedRobot">
         <div class="section instructions">
             <h4>Instructions</h4>
+            <div class="debug-status" data-bind="visible: $root.debugPhase">
+                <!-- ko if: $root.debugPhase() === 'execute-robot' -->
+                <span data-bind="text: $root.debugInstruction() + 1"></span>/<span data-bind="text: clockSpeed"></span>
+                <!-- /ko -->
+                <!-- ko if: $root.debugPhase() !== 'execute-robot' -->
+                <span data-bind="text: $root.debugPhase"></span>
+                <!-- /ko -->
+            </div>
             <ol class="instructions" data-bind="foreach: instructions">
                 <li data-bind="
                         css: {current: $index() === $parent.ptr()},

@@ -234,7 +234,12 @@ Robot.prototype.takeCollisionDamage = function () {
     }
 };
 
-Robot.prototype.executeInstruction = function () {
+Robot.prototype.executeOneCycle = function () {
+    for (var i = 0; i < this.clockSpeed(); i++) {
+        this.executeOneInstruction();
+    }
+};
+Robot.prototype.executeOneInstruction = function () {
     var instruction = this.instructions()[this.ptr()];
     if (typeof instruction === 'undefined') {
         throw 'Bad PC: ' + this.ptr();

@@ -3,6 +3,7 @@ function Arena() {
     this.width = 400;
     this.height = 400;
     this.maxRobots = 6;
+    this.time = ko.observable(0);
     this.robots = ko.observableArray();
     this.projectiles = ko.observableArray();
     this.livingRobots = ko.computed(function () {
@@ -11,6 +12,7 @@ function Arena() {
         });
     });
     this.reset = function () {
+        self.time(0);
         self.robots().forEach(function (robot) {
             robot.reset();
             robot.origin.x(Math.floor(50 + Math.random() * 300));
@@ -32,6 +34,7 @@ function Arena() {
 
     // Do collisions and damage assessment.
     function preTickPhase() {
+        self.time(self.time() + 1);
         var robots = self.livingRobots();
 
         // Initialize robots for the tick and calculate collisions.
@@ -88,20 +91,75 @@ function Arena() {
 
     this.tick = function () {
         preTickPhase();
-
-        // Process robots.
         self.livingRobots().forEach(function (robot) {
             try {
-                var cycles = robot.clockSpeed();
-                for (var cycle = 0; cycle < cycles; cycle++) {
-                    robot.executeInstruction();
-                }
+                robot.executeOneCycle();
             }
             catch (e) {
                 robot.runtimeError(e);
             }
         });
-
         return postTickPhase();
     };
+
+
+    var debugContext;
+    this.debugStep = function (robot) {
+        if (debugContext && debugContext.robot !== robot) {
+            self.endDebug();
+        }
+        if (!debugContext) {
+            debugContext = {
+                robot: robot,
+                phase: 'pre-tick',
+                instruction: 0
+            }
+        }
+        switch (debugContext.phase) {
+            case 'pre-tick':
+                preTickPhase();
+                debugContext.phase = 'execute-robot';
+                break;
+            case 'execute-robot':
+                if (debugOneInstruction()) {
+                    debugContext.instruction = 0;
+                    debugContext.phase = 'execute-others';
+                }
+                break;
+            case 'execute-others':
+                self.livingRobots().forEach(function (other) {
+                    if (other === robot) return;
+                    try {
+                        other.executeOneCycle();
+                    }
+                    catch (e) {
+                        other.runtimeError(e);
+                    }
+                });
+                debugContext.phase = 'post-tick';
+                break;
+            case 'post-tick':
+                postTickPhase();
+                debugContext.phase = 'pre-tick';
+                break;
+        }
+        return debugContext;
+    };
+    this.endDebug = function () {
+        if (!debugContext) return;
+        while (debugContext.phase !== 'pre-tick') {
+            self.debugStep(debugContext.robot);
+        }
+        debugContext = null;
+    };
+    function debugOneInstruction() {
+        try {
+            debugContext.robot.executeOneInstruction();
+            debugContext.instruction++;
+        }
+        catch (e) {
+            debugContext.robot.runtimeError(e);
+        }
+        return debugContext.instruction >= debugContext.robot.clockSpeed();
+    }
 }

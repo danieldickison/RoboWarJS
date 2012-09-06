@@ -250,3 +250,11 @@ body {
 #debugger ul.registers > li > .name {
     font-weight: bold;
 }
+
+#debugger .debug-status {
+    position: absolute;
+    right: 2px;
+    font-size: 10px;
+    color: orange;
+    z-index: 1;
+}
