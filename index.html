@@ -91,10 +91,13 @@
 
         <div class="section stack">
             <h4>Stack</h4>
-            <ol class="stack" data-bind="foreach: stack">
+            <ol class="stack" data-bind="foreach: $root.currentStack">
                 <li>
                     <span class="number" data-bind="text: $index"></span>
                     <span class="value" data-bind="text: $data"></span>
+                    <!-- ko if: $root.currentOperator -->
+                        <span class="arg-name" data-bind="text: $root.currentOperator().args[$index()]"></span>
+                    <!-- /ko -->
                 </li>
             </ol>
         </div>

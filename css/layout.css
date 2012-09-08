@@ -224,6 +224,11 @@ body {
 #debugger ol.stack > li:last-child {
     margin-bottom: 10px;
 }
+#debugger ol.stack .arg-name {
+    float: right;
+    margin-right: 5px;
+    color: gray;
+}
 
 #debugger ol.stack {
     height: 125px;

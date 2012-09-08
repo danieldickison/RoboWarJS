@@ -107,6 +107,24 @@ function ViewModel(arena) {
     };
     this.debugPhase = ko.observable();
     this.debugInstruction = ko.observable(0);
+    this.currentOperator = ko.computed(function () {
+        var robot = self.selectedRobot();
+        if (!robot) return null;
+        else return RoboCode.operators[robot.currentInstruction()];
+    });
+    // currentStack reverses the order for debug display purposes (robot's stack order is more efficient with pop/push).
+    this.currentStack = ko.computed(function () {
+        var robot = self.selectedRobot();
+        if (!robot) return null;
+        else {
+            var stack = robot.stack(),
+                reversed = [];
+            for (var i = stack.length-1; i >= 0; i--) {
+                reversed.push(stack[i]);
+            }
+            return reversed;
+        }
+    });
     this.debugStep = function () {
         var context = arena.debugStep(self.selectedRobot());
         self.debugPhase(context.phase);

@@ -78,6 +78,9 @@ function Robot(init, arena, viewModel) {
     this.instructions = ko.observable([]);
     this.code = ko.observable(init.code);
     this.stack = ko.observableArray();
+    this.currentInstruction = ko.computed(function () {
+        return self.instructions()[self.ptr()];
+    });
 
     this.registers = {};
     RoboCode.registerNames.forEach(function (name) {
@@ -243,7 +246,7 @@ Robot.prototype.executeOneCycle = function () {
     }
 };
 Robot.prototype.executeOneInstruction = function () {
-    var instruction = this.instructions()[this.ptr()];
+    var instruction = this.currentInstruction();
     if (typeof instruction === 'undefined') {
         throw 'Bad PC: ' + this.ptr();
     }
