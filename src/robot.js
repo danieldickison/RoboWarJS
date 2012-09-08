@@ -1,3 +1,5 @@
+'use strict';
+
 function deg2rad(deg) {
     return Math.PI * deg / 180;
 }

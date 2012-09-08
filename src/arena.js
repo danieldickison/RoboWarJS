@@ -1,3 +1,5 @@
+'use strict';
+
 function Arena() {
     var self = this;
     this.width = 400;

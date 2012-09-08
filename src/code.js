@@ -1,3 +1,5 @@
+'use strict';
+
 function findLineNumber(lineRanges, ptr) {
     var start = 0,
         end = lineRanges.length,
@@ -59,6 +61,20 @@ var RoboCode = {
                 robot.push(Math.floor(Math.sqrt(robot.pop())));
             }
         },
+        max: {
+            args: ['number1', 'number2'],
+            doc: 'leaves the greater of <number1> and <number2> on the stack.',
+            exec: function (robot) {
+                robot.push(Math.max(robot.pop(), robot.pop()));
+            }
+        },
+        min: {
+            args: ['number1', 'number2'],
+            doc: 'leaves the lesser of <number1> and <number2> on the stack.',
+            exec: function (robot) {
+                robot.push(Math.min(robot.pop(), robot.pop()));
+            }
+        },
 
         // Trigonometry
         sin: {
@@ -97,7 +113,7 @@ var RoboCode = {
                 robot.push(Math.floor(rad2deg(Math.asin(opp/hyp))));
             }
         },
-        asin: {
+        acos: {
             args: ['adjacent', 'hypotenuse'],
             doc: 'puts the angle of a right triangle with the given <adjacent> leg and <hypotenuse>, i.e. arccos(adjacent/hypotenuse), range [0, 180].',
             exec: function (robot) {

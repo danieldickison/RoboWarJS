@@ -1,3 +1,5 @@
+'use strict';
+
 ko.bindingHandlers.top = {
     update: function (element, valueAccessor, allBindingsAccessor, model, context) {
         var top = ko.utils.unwrapObservable(valueAccessor());
