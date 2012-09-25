@@ -386,3 +386,5 @@ var RoboCode = {
         };
     }
 };
+
+module.exports = RoboCode;

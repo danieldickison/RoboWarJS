@@ -1,5 +1,9 @@
 'use strict';
 
+var RoboCode = require('code');
+
+module.exports = Robot;
+
 function deg2rad(deg) {
     return Math.PI * deg / 180;
 }
@@ -199,7 +203,7 @@ Robot.prototype.endTick = function () {
             (this.collidingWalls.left && this.heading() > 90 && this.heading() < 270) ||
             (this.collidingWalls.right && (this.heading() < 90 || this.heading() > 270));
     this.collidingRobots.forEach(function (info) {
-        var angle = info.angle;
+        var angle = info.angle,
             da = normalizeDegree(self.heading() - angle);
         if (da < 90 || da > 270) collision = true;
     });

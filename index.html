@@ -2,15 +2,12 @@
 <head>
     <title>RoboWarJS</title>
     <link type="text/css" rel="stylesheet" href="css/layout.css"/>
-    <script type="text/javascript" src="lib/jquery-1.8.1.min.js"></script>
-    <script type="text/javascript" src="lib/knockout-2.1.0.debug.js"></script>
-    <script type="text/javascript" src="src/code.js"></script>
-    <script type="text/javascript" src="src/robot.js"></script>
-    <script type="text/javascript" src="src/arena.js"></script>
-    <script type="text/javascript" src="src/ui.js"></script>
     <script type="text/javascript">
         var DEBUG = !!window.location.href.indexOf(/(\?&)debug/);
     </script>
+    <script type="text/javascript" src="lib/jquery-1.8.1.min.js"></script>
+    <script type="text/javascript" src="lib/knockout-2.1.0.debug.js"></script>
+    <script type="text/javascript" src="jswrapped/require.js" data-main="jswrapped/ui"></script>
 </head>
 <body>
     <div id="robot-list">

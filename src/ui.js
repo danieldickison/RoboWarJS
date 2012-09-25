@@ -1,5 +1,9 @@
 'use strict';
 
+var Arena = require('arena'),
+    Robot = require('robot'),
+    RoboCode = require('code');
+
 ko.bindingHandlers.top = {
     update: function (element, valueAccessor, allBindingsAccessor, model, context) {
         var top = ko.utils.unwrapObservable(valueAccessor());
@@ -141,6 +145,8 @@ function ViewModel(arena) {
 
 var arena = new Arena,
     viewModel = new ViewModel(arena);
+
+exports.viewModel = viewModel;
 
 window.onload = function () {
     ko.applyBindings(viewModel);

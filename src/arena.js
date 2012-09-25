@@ -1,5 +1,7 @@
 'use strict';
 
+module.exports = Arena;
+
 function Arena() {
     var self = this;
     this.width = 400;
