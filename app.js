@@ -13,7 +13,7 @@ app.get('/', staticFile('index.html', 'text/html; charset=utf-8'));
 app.get('/lib/require.js', staticFile('node_modules/requirejs/require.js'));
 app.get('/lib/underscore-min.js', staticFile('node_modules/underscore/underscore-min.js'));
 app.get('/jswrapped/*', wrappedJS('src'));
-app.use('/api', require('./server/api'));
+app.use('/api', require('./src/server/api'));
 
 function staticFile(path, contentType) {
     var content = fs.readFileSync(__dirname + '/' + path);

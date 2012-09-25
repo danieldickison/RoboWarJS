@@ -1,4 +1,4 @@
-var Robot = require('robot');
+var Robot = require('../robot');
 
 module.exports = World;
 

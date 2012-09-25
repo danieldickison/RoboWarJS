@@ -1,6 +1,6 @@
 'use strict';
 
-var RoboCode = require('code');
+var RoboCode = require('./code');
 
 module.exports = Robot;
 

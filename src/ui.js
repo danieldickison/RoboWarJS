@@ -1,8 +1,8 @@
 'use strict';
 
-var Arena = require('arena'),
-    Robot = require('robot'),
-    RoboCode = require('code'),
+var Arena = require('./arena'),
+    Robot = require('./robot'),
+    RoboCode = require('./code'),
     World = require('./client/world');
 
 ko.bindingHandlers.top = {

@@ -20,10 +20,10 @@ exports.examples = function () {
 var exampleRobots = {};
 
 exports.reloadExamplesSync = function () {
-    var files = fs.readdirSync(__dirname + '/../robots');
+    var files = fs.readdirSync(__dirname + '/../../robots');
     files.forEach(function (file) {
         if (/\.json$/.test(file)) {
-            var bot = JSON.parse(fs.readFileSync(__dirname + '/../robots/' + file, 'utf-8'));
+            var bot = JSON.parse(fs.readFileSync(__dirname + '/../../robots/' + file, 'utf-8'));
             exampleRobots[bot.name] = bot;
         }
     });
