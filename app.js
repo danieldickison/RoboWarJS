@@ -1,9 +1,6 @@
 var fs = require('fs'),
-    indexHTML = fs.readFileSync(__dirname + '/index.html'),
-    requireJS = fs.readFileSync(__dirname + '/node_modules/requirejs/require.js'),
     express = require('express'),
-    app = express(),
-    ko = require('knockout');
+    app = express();
 
 app.use(express.logger('dev'));
 
@@ -13,14 +10,21 @@ app.use(express.logger('dev'));
 app.use('/img', express.static(__dirname + '/img', {maxAge: 60000}));
 
 app.get('/', staticFile('index.html', 'text/html; charset=utf-8'));
-app.get('/jswrapped/require.js', staticFile('node_modules/requirejs/require.js'));
+app.get('/lib/require.js', staticFile('node_modules/requirejs/require.js'));
+app.get('/lib/underscore-min.js', staticFile('node_modules/underscore/underscore-min.js'));
 app.get('/jswrapped/*', wrappedJS('src'));
+app.use('/api', require('./server/api'));
 
 function staticFile(path, contentType) {
     var content = fs.readFileSync(__dirname + '/' + path);
     return function (req, res) {
-        res.set('Content-Type', contentType);
-        res.send(content);
+        if (app.get('env') === 'development') {
+            res.sendfile(__dirname + '/' + path);
+        }
+        else {
+            res.set('Content-Type', contentType);
+            res.send(content);
+        }
     };
 }
 
@@ -47,4 +51,6 @@ function wrappedJS(dir) {
     }
 }
 
-app.listen(process.env.VCAP_APP_PORT || 3000);
+var port = process.env.VCAP_APP_PORT || 3000;
+app.listen(port);
+console.log('Listening on port ' + port);

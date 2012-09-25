@@ -2,7 +2,8 @@
 
 var Arena = require('arena'),
     Robot = require('robot'),
-    RoboCode = require('code');
+    RoboCode = require('code'),
+    World = require('./client/world');
 
 ko.bindingHandlers.top = {
     update: function (element, valueAccessor, allBindingsAccessor, model, context) {
@@ -60,20 +61,52 @@ ko.bindingHandlers.scrollIntoViewWhen = {
     }
 };
 
-function ViewModel(arena) {
+/* Animated visibility toggle.
+    Optional additional properties: animationType ('slide' or 'fade') and animationSpeed (ms or 'slow' or 'fast')
+    Example: data-bind='animateVisible: showMe, animationType: "slide", animationSpeed: "slow"'
+*/
+ko.bindingHandlers.animateVisible = {
+    init: function (element, valueAccessor, allBindingsAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor());
+        $(element).css('display', value ? null : 'none');
+    },
+    update: function (element, valueAccessor, allBindingsAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor()),
+            allBindings = allBindingsAccessor(),
+            animation = ko.utils.unwrapObservable(allBindings.animationType) || 'fade',
+            speed = ko.utils.unwrapObservable(allBindings.animationSpeed) || 'fast';
+        switch (animation) {
+            case 'fade':
+                $(element)[value ? 'fadeIn' : 'fadeOut'](speed);
+                break;
+            case 'slide':
+                $(element).slideToggleBool(!!value, speed);
+                break;
+            case 'toggle':
+                $(element)[value ? 'show' : 'hide'](speed);
+                break;
+            default:
+                throw 'Unknown animation type ' + animation;
+        }
+    }
+};
+
+function ViewModel(arena, world) {
     var self = this;
     this.registerNames = RoboCode.registerNames;
     this.arena = arena;
+    this.world = world;
     this.flippedY = ko.observable(true);
     this.selectedRobot = ko.observable();
     this.selectRobot = function (robot, event) {
+        arena.robots().forEach(function (otherBot) {
+            otherBot.viewModel = null;
+        });
+        robot.viewModel = self;
         self.selectedRobot(robot);
     };
     this.loadRobot = function () {
-        var robot = new Robot(Robot.defaults, arena, self);
-        arena.addRobot(robot);
-        robot.code(Robot.examplePrograms[robot.number() % Robot.examplePrograms.length]);
-        robot.compile();
+        world.showOpenDialog();
     };
     this.removeRobot = function () {
         arena.removeRobot(self.selectedRobot());
@@ -144,7 +177,8 @@ function ViewModel(arena) {
 }
 
 var arena = new Arena,
-    viewModel = new ViewModel(arena);
+    world = new World('/api', arena),
+    viewModel = new ViewModel(arena, world);
 
 exports.viewModel = viewModel;
 

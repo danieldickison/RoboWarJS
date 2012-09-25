@@ -1,0 +1,5 @@
+{
+    "name": "circles",
+    "description": "A very basic example robot. Walks around in circles and fires when it sees someone.",
+    "code": "# I run in circles\nLoop:\n    rand 60 / spd' store\n    hdg rand 6 / - hdg' store\n    3 bllt' store\n    Loop jump"
+}

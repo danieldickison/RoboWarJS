@@ -1,0 +1,5 @@
+{
+    "name": "turret",
+    "description": "A very basic example robot. A stationary turret that fires when it sees someone.",
+    "code": "# I'm a stationary turret\nLoop:\n    rng Shoot if\n    aim 5 + aim' store\n    Loop jump\nShoot:\n    10 mssl' store\n    jump"
+}

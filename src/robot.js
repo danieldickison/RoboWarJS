@@ -52,11 +52,13 @@ Point.prototype.move = function (heading, distance) {
     this.y(this.y() + dy);
 };
 
-function Robot(init, arena, viewModel) {
+function Robot(init, arena) {
+    init = _.extend({}, Robot.defaults, init);
     var self = this;
     this.arena = arena;
-    this.viewModel = viewModel;
+    this.viewModel = null;
     this.name = ko.observable(init.name);
+    this.description = ko.observable(init.description);
     this.spriteURL = ko.observable(init.spriteURL);
     this.damageCapacity = ko.observable(init.damage);
     this.energyCapacity = ko.observable(init.energy);
@@ -361,23 +363,6 @@ Robot.defaults = {
     spriteURL: 'img/default-robot.png',
     code: "Loop:\nLoop jump"
 };
-
-Robot.examplePrograms = [
-"# I run in circles\n\
-    Loop:\n\
-        rand 60 / spd' store\n\
-        hdg rand 6 / - hdg' store\n\
-        3 bllt' store\n\
-        Loop jump",
-"# I'm a stationary turret\n\
-    Loop:\n\
-        rng Shoot if\n\
-        aim 5 + aim' store\n\
-        Loop jump\n\
-    Shoot:\n\
-        10 mssl' store\n\
-        jump"
-];
 
 
 function makeProjectile(shooter, speed, heading, damage) {
