@@ -96,7 +96,7 @@
                         click: $parent.highlightInstruction.bind($parent, $index()),
                         scrollIntoViewWhen: $index() === $parent.ptr()">
                     <span class="number" data-bind="text: $index"></span>
-                    <span class="instruction" data-bind="text: $data"></span>
+                    <span class="instruction" data-bind="text: $root.RoboCode.formatCode($data)"></span>
                 </li>
             </ol>
         </div>
@@ -106,7 +106,7 @@
             <ol class="plain-list stack" data-bind="foreach: $root.currentStack">
                 <li>
                     <span class="number" data-bind="text: $index"></span>
-                    <span class="value" data-bind="text: $data"></span>
+                    <span class="value" data-bind="text: $root.RoboCode.formatCode($data)"></span>
                     <!-- ko if: $root.currentOperator -->
                         <span class="arg-name" data-bind="text: $root.currentOperator().args[$index()]"></span>
                     <!-- /ko -->
@@ -122,10 +122,13 @@
 
         <div class="section registers">
             <h4>Registers</h4>
-            <ul class="plain-list registers" data-bind="foreach: $root.registerNames">
+            <ul class="plain-list registers" data-bind="foreach: $root.RoboCode.registers">
                 <li>
-                    <span class="name" data-bind="text: $data"></span>
-                    <span class="value" data-bind="text: $parent.getRegister($data)"></span>
+                    <span class="name" data-bind="text: sym"></span>
+                    <span class="value" data-bind="text: $parent.getRegister(sym)"></span>
+                    <!-- ko if: doc -->
+                        <div class="doc" data-bind="text: doc"></div>
+                    <!-- /ko -->
                 </li>
             </ul>
         </div>

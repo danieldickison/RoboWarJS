@@ -14,61 +14,186 @@ function findLineNumber(lineRanges, ptr) {
     return range ? line : -1;
 }
 
+
 var RoboCode = {
-    registerNames: ['engy', 'dmg', 'hdg', 'spd', 'aim', 'posx', 'posy', 'rng', 'wall', 'bump', 'bllt', 'mssl', 'rand', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
+    OP_TAG  : 0x80000000,
+    REG_TAG : 0x40000000,
+    VAL_MASK: 0x0000ffff,
 
-    unquoteRegister: function (name) {
-        if (typeof name !== 'string' || name[name.length-1] !== "'") {
-            throw 'Invalid register name ' + name;
+    registers: [
+        {
+            sym: 'engy'
+        },
+        {
+            sym: 'dmg'
+        },
+        {
+            sym: 'hdg',
+            doc: "The heading in degrees counter-clockwise from 3 o'clock"
+        },
+        {
+            sym: 'spd'
+        },
+        {
+            sym: 'aim',
+            doc: "The angle of the turret relative to hdg"
+        },
+        {
+            sym: 'posx'
+        },
+        {
+            sym: 'posy'
+        },
+        {
+            sym: 'rng'
+        },
+        {
+            sym: 'wall'
+        },
+        {
+            sym: 'bump'
+        },
+        {
+            sym: 'bllt'
+        },
+        {
+            sym: 'mssl'
+        },
+        {
+            sym: 'rand'
+        },
+        {
+            sym: 'a'
+        },
+        {
+            sym: 'b'
+        },
+        {
+            sym: 'c'
+        },
+        {
+            sym: 'd'
+        },
+        {
+            sym: 'e'
+        },
+        {
+            sym: 'f'
+        },
+        {
+            sym: 'g'
+        },
+        {
+            sym: 'h'
+        },
+        {
+            sym: 'i'
+        },
+        {
+            sym: 'j'
+        },
+        {
+            sym: 'k'
+        },
+        {
+            sym: 'l'
+        },
+        {
+            sym: 'm'
+        },
+        {
+            sym: 'n'
+        },
+        {
+            sym: 'o'
+        },
+        {
+            sym: 'p'
+        },
+        {
+            sym: 'q'
+        },
+        {
+            sym: 'r'
+        },
+        {
+            sym: 's'
+        },
+        {
+            sym: 't'
+        },
+        {
+            sym: 'u'
+        },
+        {
+            sym: 'v'
+        },
+        {
+            sym: 'w'
+        },
+        {
+            sym: 'x'
+        },
+        {
+            sym: 'y'
+        },
+        {
+            sym: 'z'
         }
-        return name.substr(0, name.length-1);
-    },
+    ],
 
-    operators: {
+    operators: [
         // Math
-        '+': {
+        {
+            sym: '+',
             args: ['addend1', 'addend2'],
             doc: 'adds <addend1> and <addend2> and leaves the result on the stack.',
             exec: function (robot) {
                 robot.push(robot.pop() + robot.pop());
             }
         },
-        '-': {
+        {
+            sym: '-',
             args: ['subtrahend', 'minuend'],
             doc: 'subtracts <subtrahend> from <minuend> and leaves the result on the stack.',
             exec: function (robot) {
                 robot.push(-robot.pop() + robot.pop());
             }
         },
-        '*': {
+        {
+            sym: '*',
             args: ['factor1', 'factor2'],
             doc: 'multiplies <factor1> and <factor2> and leaves the result on the stack.',
             exec: function (robot) {
                 robot.push(robot.pop() * robot.pop());
             }
         },
-        '/': {
+        {
+            sym: '/',
             args: ['denominator', 'numerator'],
             doc: 'divides <numerator> by <denominator> and leaves the result on the stack.',
             exec: function (robot) {
                 robot.push(Math.floor(1/robot.pop() * robot.pop()));
             }
         },
-        sqrt: {
+        {
+            sym: 'sqrt',
             args: ['number'],
             doc: 'puts the square root of <number> on the stack.',
             exec: function (robot) {
                 robot.push(Math.floor(Math.sqrt(robot.pop())));
             }
         },
-        max: {
+        {
+            sym: 'max',
             args: ['number1', 'number2'],
             doc: 'leaves the greater of <number1> and <number2> on the stack.',
             exec: function (robot) {
                 robot.push(Math.max(robot.pop(), robot.pop()));
             }
         },
-        min: {
+        {
+            sym: 'min',
             args: ['number1', 'number2'],
             doc: 'leaves the lesser of <number1> and <number2> on the stack.',
             exec: function (robot) {
@@ -77,7 +202,8 @@ var RoboCode = {
         },
 
         // Trigonometry
-        sin: {
+        {
+            sym: 'sin',
             args: ['hypotenuse', 'degrees'],
             doc: 'puts the length of the opposite leg of a right triangle with the given <hypotenuse> and <degrees>, i.e. hypotenuse * sin(degrees).',
             exec: function (robot) {
@@ -86,7 +212,8 @@ var RoboCode = {
                 robot.push(Math.floor(hyp * Math.sin(deg2rad(deg))));
             }
         },
-        cos: {
+        {
+            sym: 'cos',
             args: ['hypotenuse', 'degrees'],
             doc: 'puts the length of the adjacent leg of a right triangle with the given <hypotenuse> and <degrees>, i.e. hypotenuse * cos(degrees).',
             exec: function (robot) {
@@ -95,7 +222,8 @@ var RoboCode = {
                 robot.push(Math.floor(hyp * Math.cos(deg2rad(deg))));
             }
         },
-        tan: {
+        {
+            sym: 'tan',
             args: ['adjacent', 'degrees'],
             doc: 'puts the length of the opposite leg of a right triangle with the given <adjacent> leg and <degrees>, i.e. adjacent * tan(degrees).',
             exec: function (robot) {
@@ -104,7 +232,8 @@ var RoboCode = {
                 robot.push(Math.floor(adj * Math.tan(deg2rad(deg))));
             }
         },
-        asin: {
+        {
+            sym: 'asin',
             args: ['opposite', 'hypotenuse'],
             doc: 'puts the angle of a right triangle with the given <opposite> leg and <hypotenuse>, i.e. arcsin(opposite/hypotenuse), range [-90, 90].',
             exec: function (robot) {
@@ -113,7 +242,8 @@ var RoboCode = {
                 robot.push(Math.floor(rad2deg(Math.asin(opp/hyp))));
             }
         },
-        acos: {
+        {
+            sym: 'acos',
             args: ['adjacent', 'hypotenuse'],
             doc: 'puts the angle of a right triangle with the given <adjacent> leg and <hypotenuse>, i.e. arccos(adjacent/hypotenuse), range [0, 180].',
             exec: function (robot) {
@@ -122,7 +252,8 @@ var RoboCode = {
                 robot.push(Math.floor(rad2deg(Math.acos(adj/hyp))));
             }
         },
-        atan: {
+        {
+            sym: 'atan',
             args: ['opposite', 'adjacent'],
             doc: 'puts the angle of a right triangle with the given <opposite> and <adjacent> legs, i.e. arctan(opposite/adjacent), range (-180, 180].',
             exec: function (robot) {
@@ -133,21 +264,24 @@ var RoboCode = {
         },
 
         // Boolean
-        and: {
+        {
+            sym: 'and',
             args: ['bool1', 'bool2'],
             doc: 'puts <bool2> on the stack if both <bool1> and <bool2> are non-zero; puts 0 otherwise.',
             exec: function (robot) {
                 robot.push((robot.pop() && robot.pop()) || 0);
             }
         },
-        or: {
+        {
+            sym: 'or',
             args: ['bool1', 'bool2'],
             doc: 'puts <bool1> on the stack if either <bool1> or <bool2> is non-zero; puts 0 otherwise.',
             exec: function (robot) {
                 robot.push(robot.pop() || robot.pop() || 0);
             }
         },
-        not: {
+        {
+            sym: 'not',
             args: ['bool'],
             doc: 'puts 1 on the stack if <bool> is 0; puts 0 otherwise.',
             exec: function (robot) {
@@ -156,21 +290,24 @@ var RoboCode = {
         },
 
         // Misc.
-        drop: {
+        {
+            sym: 'drop',
             args: ['value'],
             doc: 'discards the top <value> on the stack.',
             exec: function (robot) {
                 robot.pop();
             }
         },
-        dropall: {
+        {
+            sym: 'dropall',
             args: [],
             doc: 'discards all values on the stack.',
             exec: function (robot) {
                 robot.stack.removeAll();
             }
         },
-        dup: {
+        {
+            sym: 'dup',
             args: ['value'],
             doc: 'duplicates <value> on the stack.',
             exec: function (robot) {
@@ -179,7 +316,8 @@ var RoboCode = {
                 robot.push(value);
             }
         },
-        swap: {
+        {
+            sym: 'swap',
             args: ['value1', 'value2'],
             doc: 'swaps <value1> and <value2> on the stack.',
             exec: function (robot) {
@@ -189,43 +327,49 @@ var RoboCode = {
                 robot.push(value2);
             }
         },
-        noop: {
+        {
+            sym: 'noop',
             args: [],
             doc: 'does nothing.',
             exec: function (robot) {}
         },
-        sync: {
+        {
+            sym: 'sync',
             args: [],
             doc: 'sleeps until the end of the tick.',
             exec: function (robot) { throw 'robot should handle sync instruction'; }
         },
-        debug: {
+        {
+            sym: 'debug',
             args: [],
             doc: 'pauses the game and invokes the debugger at the beginning of the next tick.',
             exec: function (robot) { throw 'robot should handle debug instruction'; }
         },
 
         // Working with registers.
-        store: {
-            args: ['name', 'value'],
-            doc: 'stores <value> in the <name> register.',
+        {
+            sym: 'store',
+            args: ['register', 'value'],
+            doc: 'stores <value> in <register>.',
             exec: function (robot) {
-                var name = robot.pop(),
+                var register = robot.pop(),
                     value = robot.pop();
-                robot.setRegister(name, value);
+                robot.setRegister(register, value);
             }
         },
-        recall: {
-            args: ['name'],
-            doc: 'retrieves the value in the <name> register and puts it on the stack.',
+        {
+            sym: 'recall',
+            args: ['register'],
+            doc: 'retrieves the value in <register> and puts it on the stack.',
             exec: function (robot) {
-                var name = robot.pop();
-                robot.push(robot.getRegister(name));
+                var register = robot.pop();
+                robot.push(robot.getRegister(register));
             }
         },
 
         // Branching and jumping.
-        ifg: {
+        {
+            sym: 'ifg',
             args: ['ptr', 'cond'],
             doc: 'jumps to <ptr> if <cond> is not 0.',
             exec: function (robot) {
@@ -236,7 +380,8 @@ var RoboCode = {
                 }
             }
         },
-        ifeg: {
+        {
+            sym: 'ifeg',
             args: ['no-ptr', 'yes-ptr', 'cond'],
             doc: 'jumps to <no-ptr> if <cond> is 0 and to <yes-ptr> otherwise.',
             exec: function (robot) {
@@ -246,7 +391,8 @@ var RoboCode = {
                 robot.gotoInstruction(cond ? yesptr : noptr);
             }
         },
-        if: {
+        {
+            sym: 'if',
             args: ['ptr', 'cond'],
             doc: 'if <cond> is not 0, calls <ptr>, leaving a return address on the stack.',
             exec: function (robot) {
@@ -258,7 +404,8 @@ var RoboCode = {
                 }
             }
         },
-        ife: {
+        {
+            sym: 'ife',
             args: ['no-ptr', 'yes-ptr', 'cond'],
             doc: 'calls <no-ptr> if <cond> is 0 and <yes-ptr> otherwise, leaving a return address on the stack.',
             exec: function (robot) {
@@ -269,7 +416,8 @@ var RoboCode = {
                 robot.gotoInstruction(cond ? yesptr : noptr);
             }
         },
-        jump: {
+        {
+            sym: 'jump',
             args: ['ptr'],
             doc: 'jumps to the <ptr> instruction in the program.',
             exec: function (robot) {
@@ -277,7 +425,8 @@ var RoboCode = {
                 robot.gotoInstruction(ptr);
             }
         },
-        call: {
+        {
+            sym: 'call',
             args: ['ptr'],
             doc: 'jumps to <ptr> after leaving a return address on the stack.',
             exec: function (robot) {
@@ -286,6 +435,34 @@ var RoboCode = {
                 robot.gotoInstruction(ptr);
             }
         }
+    ],
+
+    findRegister: function (symOrIndex) {
+        var register;
+        if ('string' === typeof symOrIndex) {
+            register = RoboCode.registersBySym[symOrIndex];
+        }
+        else if ('number' === typeof symOrIndex) {
+            register = RoboCode.registers[symOrIndex & RoboCode.VAL_MASK];
+        }
+        else {
+            throw 'Invalid register specifier: ' + symOrIndex;
+        }
+
+        if (!register) {
+            throw 'Unknown register: ' + symOrIndex;
+        }
+        return register;
+    },
+
+    formatCode: function (code) {
+        if (code & RoboCode.OP_TAG) {
+            return RoboCode.operators[code & RoboCode.VAL_MASK].sym;
+        }
+        else if (code & RoboCode.REG_TAG) {
+            return RoboCode.registers[code & RoboCode.VAL_MASK].sym + "'";
+        }
+        else return code;
     },
 
     compile: function (source) {
@@ -328,12 +505,13 @@ var RoboCode = {
                 }
                 // Verify names of quoted registers.
                 else if (token[token.length-1] === "'") {
-                    var register = token.substr(0, token.length-1);
-                    if (RoboCode.registerNames.indexOf(register) === -1) {
+                    var sym = token.substr(0, token.length-1),
+                        register = RoboCode.registersBySym[sym];
+                    if (!register) {
                         markError('Unknown register', i, line, token);
                     }
                     else {
-                        instructions.push(token);
+                        instructions.push(register.index | RoboCode.REG_TAG);
                     }
                 }
                 else {
@@ -344,14 +522,14 @@ var RoboCode = {
                     }
                     else {
                         // Check if it's an operator.
-                        var op = RoboCode.operators[token];
-                        if (op) {
-                            instructions.push(token);
+                        var op, register;
+                        if (op = RoboCode.operatorsBySym[token]) {
+                            instructions.push(op.index | RoboCode.OP_TAG);
                         }
                         // Check if it's a register retrieval, which becomes 2 instructions.
-                        else if (RoboCode.registerNames.indexOf(token) !== -1) {
-                            instructions.push(token + "'");
-                            instructions.push('recall');
+                        else if (register = RoboCode.registersBySym[token]) {
+                            instructions.push(register.index | RoboCode.REG_TAG);
+                            instructions.push(RoboCode.operatorsBySym['recall'].index | RoboCode.OP_TAG);
                         }
                         // Otherwise, it should be a jump label. Stash these for resolving later.
                         else {
@@ -386,5 +564,16 @@ var RoboCode = {
         };
     }
 };
+RoboCode.operatorsBySym = {};
+RoboCode.operators.forEach(function (op, index) {
+    op.index = index;
+    RoboCode.operatorsBySym[op.sym] = op;
+});
+RoboCode.registersBySym = {};
+RoboCode.registers.forEach(function (reg, index) {
+    reg.index = index;
+    reg.doc = reg.doc || null;
+    RoboCode.registersBySym[reg.sym] = reg;
+});
 
 module.exports = RoboCode;

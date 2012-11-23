@@ -90,9 +90,8 @@ function Robot(init, arena) {
         return self.instructions()[self.ptr()];
     });
 
-    this.registers = {};
-    RoboCode.registerNames.forEach(function (name) {
-        self.registers[name] = ko.observable(0);
+    this.registers = RoboCode.registers.map(function () {
+        return ko.observable(0);
     });
 
     this.compile = function () {
@@ -260,30 +259,25 @@ Robot.prototype.executeOneInstruction = function () {
     }
     this.ptr(this.ptr() + 1);
 
-    // Handle special instructions 'debug' and 'sync'.
-    if (instruction === 'debug') {
-        if (this.viewModel && this.viewModel.selectedRobot() === this) {
-            this.viewModel.pause(); // This will pause on the next tick if currently running.
-            return 'debug'; // Caller should treat it like 'sync' unless already debugging.
+    if (instruction & RoboCode.OP_TAG) {
+        var op = RoboCode.operators[instruction & RoboCode.VAL_MASK];
+        // Handle special instructions 'debug' and 'sync'.
+        if (op.sym === 'debug') {
+            if (this.viewModel && this.viewModel.selectedRobot() === this) {
+                this.viewModel.pause(); // This will pause on the next tick if currently running.
+                return 'debug'; // Caller should treat it like 'sync' unless already debugging.
+            }
+            return 'freebie'; // Caller should not count this instruction's cpu cost.
         }
-        return 'freebie'; // Caller should not count this instruction's cpu cost.
-    }
-    else if (instruction === 'sync') {
-        return 'sync'; // Caller should skip execution of this robot until the next tick.
-    }
-
-    // Handle "normal" instructions and literals.
-    if (typeof instruction === 'number') {
-        this.push(instruction);
-    }
-    else {
-        var op = RoboCode.operators[instruction];
-        if (op) {
-            op.exec(this);
+        else if (op.sym === 'sync') {
+            return 'sync'; // Caller should skip execution of this robot until the next tick.
         }
         else {
-            this.push(RoboCode.unquoteRegister(instruction));
+            op.exec(this);
         }
+    }
+    else {
+        this.push(instruction);
     }
 };
 Robot.prototype.gotoInstruction = function (ptr) {
@@ -302,28 +296,24 @@ Robot.prototype.push = function (value) {
         throw 'Stack overflow';
     }
 };
-Robot.prototype.getRegister = function (name) {
-    if (!this.registers.hasOwnProperty(name)) {
-        throw 'Unknown register: ' + name;
-    }
-    if (name === 'rand') {
+Robot.prototype.getRegister = function (register) {
+    register = RoboCode.findRegister(register);
+    if (register.sym === 'rand') {
         return Math.floor(Math.random() * 360);
     }
-    return this.registers[name]();
+    return this.registers[register.index]();
 };
-Robot.prototype.setRegister = function (name, value) {
-    if (!this.registers.hasOwnProperty(name)) {
-        throw 'Unknown register: ' + name;
-    }
+Robot.prototype.setRegister = function (register, value) {
+    register = RoboCode.findRegister(register);
     if (typeof value !== 'number') {
         throw 'Register value must be a number, but got: ' + value;
     }
-    this.registers[name](value);
+    this.registers[register.index](value);
 };
 Robot.prototype.reset = function () {
     var self = this;
-    RoboCode.registerNames.forEach(function (name) {
-        self.setRegister(name, 0);
+    this.registers.forEach(function (register) {
+        register(0);
     });
     this.stack([]);
     this.ptr(0);

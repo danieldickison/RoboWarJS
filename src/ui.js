@@ -93,7 +93,7 @@ ko.bindingHandlers.animateVisible = {
 
 function ViewModel(arena, world) {
     var self = this;
-    this.registerNames = RoboCode.registerNames;
+    this.RoboCode = RoboCode;
     this.arena = arena;
     this.world = world;
     this.flippedY = ko.observable(true);
@@ -148,8 +148,13 @@ function ViewModel(arena, world) {
     this.debugInstruction = ko.observable(0);
     this.currentOperator = ko.computed(function () {
         var robot = self.selectedRobot();
-        if (!robot) return null;
-        else return RoboCode.operators[robot.currentInstruction()];
+        if (robot) {
+            var instruction = robot.currentInstruction();
+            if (instruction & RoboCode.OP_TAG) {
+                return RoboCode.operators[instruction & RoboCode.VAL_MASK];
+            }
+        }
+        return null;
     });
     // currentStack reverses the order for debug display purposes (robot's stack order is more efficient with pop/push).
     this.currentStack = ko.computed(function () {
