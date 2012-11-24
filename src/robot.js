@@ -66,6 +66,7 @@ function Robot(init, arena) {
     this.damage = ko.observable(init.damage);
     this.energy = ko.observable(init.energy);
     this.stackSize = ko.observable(init.stackSize);
+    this.romSize = ko.observable(init.romSize);
     this.clockSpeed = ko.observable(init.clockSpeed);
     this.turretAngle = ko.observable(0);
     this.number = ko.observable(0);
@@ -99,6 +100,9 @@ function Robot(init, arena) {
         if (results.errors.length > 0) {
             console.error('Compilation errors:', results.errors);
             alert('Compilation errors');
+        }
+        else if (results.instructions.length > self.romSize()) {
+            alert('Program too large (' + results.instructions.length + ' > ' + self.romSize());
         }
         else {
             self.instructions(results.instructions);
@@ -349,6 +353,7 @@ Robot.defaults = {
     energy: 100,
     energyRegeneration: 5,
     stackSize: 100,
+    romSize: 1024,
     clockSpeed: 5,
     spriteURL: 'img/default-robot.png',
     code: "Loop:\nLoop jump"
