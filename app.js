@@ -3,6 +3,12 @@ var fs = require('fs'),
     app = express();
 
 app.use(express.logger('dev'));
+app.use(express.cookieParser());
+app.use(express.cookieSession({
+    secret: process.env.SESSION_SECRET || 'zebra',
+    cookie: { maxAge: 60 * 60 * 24 * 365 }
+}))
+app.use(express.urlencoded());
 
 ['css', 'src', 'lib'].forEach(function (dir) {
     app.use('/' + dir, express.static(__dirname + '/' + dir));

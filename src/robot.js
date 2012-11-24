@@ -345,6 +345,15 @@ Robot.prototype.highlightInstruction = function (ptr) {
     console.log('TODO: highlight source line ' + lineNumber);
 };
 
+Robot.prototype.saveData = function () {
+    var self = this,
+        data = {};
+    ['name', 'description', 'damageCapacity', 'energyCapacity', 'energyRegeneration', 'stackSize', 'romSize', 'clockSpeed', 'code'].forEach(function (prop) {
+        data[prop] = ko.utils.unwrapObservable(self[prop]);
+    });
+    return data;
+}
+
 Robot.collisionDamage = 2;
 
 Robot.defaults = {

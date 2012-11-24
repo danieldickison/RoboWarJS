@@ -9,8 +9,18 @@ exports.getRobotData = function (name, cb) {
         });
     }
     else {
-        throw 'TODO: Non-example bots not yet supported';
+        // TODO: db
+        fs.readFile(__dirname + '/../../robots/' + name + '.json', function (err, str) {
+            if (err) return cb(err);
+            else if (str) return cb(null, JSON.parse(str));
+            else return cb(null, null);
+        });
     }
+};
+
+exports.setRobotData = function (name, data, cb) {
+    // TODO: db
+    fs.writeFile(__dirname + '/../../robots/' + name + '.json', JSON.stringify(data), cb);
 };
 
 exports.examples = function () {

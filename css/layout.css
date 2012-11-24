@@ -188,9 +188,12 @@ ul > li.selected {
     height: 150px;
 }
 
-#debugger > .section.code {
+#debugger > .section.editor {
     margin-right: 150px;
-    min-height: 350px;
+    height: 350px;
+}
+#debugger > .section.editor > div {
+    height: 100%;
 }
 
 #debugger > .section.registers {
@@ -200,7 +203,7 @@ ul > li.selected {
 #debugger textarea.code {
     display: block;
     width: 100%;
-    min-height: 290px;
+    min-height: 100%;
     font-family: Menlo, Consolas, Inconsolata, "Bitstream Vera Sans Mono", monospace;
     font-size: 13px;
     border: none;

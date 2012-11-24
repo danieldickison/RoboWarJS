@@ -111,6 +111,10 @@ function ViewModel(arena, world) {
     this.removeRobot = function () {
         arena.removeRobot(self.selectedRobot());
     };
+    this.saveRobot = function () {
+        self.selectedRobot().compile();
+        world.saveRobot(self.selectedRobot());
+    };
     this.speedOptions = [
         {label: 'slow', delay: 500},
         {label: 'medium', delay: 100},
@@ -120,6 +124,11 @@ function ViewModel(arena, world) {
     ];
     this.speed = ko.observable(this.speedOptions[0]);
     this.projectiles = ko.observableArray();
+
+    this.editorTab = ko.observable('code');
+    this.showCode = function () {self.editorTab('code')};
+    this.showHardware = function () {self.editorTab('hardware')};
+    this.showStats = function () {self.editorTab('stats')};
 
     this.running = ko.observable(null);
     this.run = function () {
@@ -188,5 +197,6 @@ var arena = new Arena,
 exports.viewModel = viewModel;
 
 window.onload = function () {
+    window.viewModel = viewModel;
     ko.applyBindings(viewModel);
 };

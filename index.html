@@ -114,10 +114,23 @@
             </ol>
         </div>
 
-        <div class="section code">
-            <h4>Code</h4>
-            <textarea class="code" data-bind="value: code"></textarea>
-            <button data-bind="click: compile">Compile</button>
+        <div class="section editor">
+            <h4>
+                <button data-bind="click: $root.showCode">Code</button>
+                <button data-bind="click: $root.showHardware">Hardware</button>
+                <button data-bind="click: $root.showStats">Stats</button>
+                <button class="right" data-bind="click: compile">Build</button>
+                <button class="right" data-bind="click: $root.saveRobot">Save</button>
+            </h4>
+            <div class="code" data-bind="visible: $root.editorTab() === 'code'">
+                <textarea class="code" data-bind="value: code"></textarea>
+            </div>
+            <div class="hardware" data-bind="visible: $root.editorTab() === 'hardware'">
+                hardware goes here
+            </div>
+            <div class="stats" data-bind="visible: $root.editorTab() === 'stats'">
+                stats go here
+            </div>
         </div>
 
         <div class="section registers">

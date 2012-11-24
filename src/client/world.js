@@ -42,3 +42,14 @@ World.prototype.refreshExampleRobots = function () {
         alert('Failed to fetch example robots');
     });
 };
+
+World.prototype.saveRobot = function (robot) {
+    var self = this;
+    $.post(this.apiAddress + '/robot/' + robot.name(), robot.saveData())
+    .done(function (data) {
+        console.log('save: ', data);
+    })
+    .fail(function () {
+        alert('Failed to save robot');
+    });
+};
