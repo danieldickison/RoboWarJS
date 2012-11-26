@@ -1,0 +1,112 @@
+doctype 5
+html
+  head
+    title RoboWarJS
+    link(rel='stylesheet', href='css/layout.css')
+    script
+        var DEBUG = ~window.location.href.indexOf(/[\?&]debug[$\*]/);
+    script(src='lib/underscore-min.js')
+    script(src='lib/jquery-1.8.1.min.js')
+    script(src='lib/knockout-2.1.0.debug.js')
+    script(src='lib/require.js', data-main='jswrapped/ui')
+
+  body
+
+    #open-dialog(data-bind='with: world, animateVisible: world.openDialogVisible')
+      ol.plain-list.examples(data-bind='foreach: exampleRobots')
+        li(data-bind='click: $parent.selectRobot, events: {dblclick: $parent.loadRobot}, css: {selected: $data === $parent.selectedRobot()}')
+          .name(data-bind='text: name')
+          .description(data-bind='text: description')
+      .button-bar
+        button(data-bind='click: hideOpenDialog') Cancel
+        button(data-bind='click: loadRobot') Load
+
+    #robot-list
+      ol.plain-list(data-bind='foreach: arena.robots')
+        li(data-bind='click: $parent.selectRobot, css: {selected: $data === $parent.selectedRobot()}')
+          .icon(data-bind='spriteURL: spriteURL, tint: hue')
+          .name(data-bind='text: name')
+          .status
+            div(data-bind='visible: !dead()')
+              span.label Energy
+              span.bar.green
+                span(data-bind='style: {width: (100 * energy() / energyCapacity()) + "%"}')
+            div(data-bind='visible: !dead()')
+              span.label Damage
+              span.bar.red
+                span(data-bind='style: {width: (100 * damage() / damageCapacity()) + "%"}')
+            div(data-bind='visible: dead') dead
+              span.error(data-bind='text: runtimeError')
+      .button-bar
+        button(data-bind='click: loadRobot, enable: arena.robots().length < arena.maxRobots && !arena.time()') +
+        button(data-bind='click: removeRobot, enable: selectedRobot() && !arena.time()') -
+
+    #arena(data-bind='css: {animate: speed().delay > 0, "flipped-y": flippedY}')
+      .layer.robots(data-bind='foreach: arena.livingRobots')
+        .robot(data-bind='top: top, left: left, css: {selected: $data === $parent.selectedRobot()}')
+          .icon(data-bind='spriteURL: spriteURL, tint: hue, rotate: heading')
+          .turret(data-bind='rotate: turretAngle')
+      .layer.projectiles(data-bind='foreach: arena.projectiles')
+        div(data-bind='top: top, left: left, tint: shooter.hue, rotate: heading, attr: {class: type}')
+
+    #controls
+      .button-bar
+        select(data-bind='options: speedOptions, optionsText: "label", value: speed, disable: running')
+        button(data-bind='click: run, visible: !running()')     Run
+        button(data-bind='click: pause, visible: running')      Pause
+        button(data-bind='click: reset, visible: !running()')   Reset
+        button(data-bind='click: tick, visible: !running()')    Tick
+        button(data-bind='click: debugStep, visible: !running(), enable: selectedRobot') Step
+      .status Tick:
+        span(data-bind='text: arena.time')
+
+    #debugger(data-bind='with: selectedRobot')
+      .section.instructions
+        h4 Instructions
+        .debug-status(visible: $root.debugPhase)
+          // ko if: $root.debugPhase() === 'execute-robot'
+          span(data-bind='text: $root.debugInstruction() + 1')
+          | /
+          span(data-bind='text: clockSpeed')
+          // /ko
+          // ko if: $root.debugPhase() !== 'execute-robot'
+          span(data-bind='text: $root.debugPhase')
+          // /ko
+        ol.plain-list.instructions(data-bind='foreach: instructions')
+          li(data-bind='css: {current: $index() === $parent.ptr()}, click: $parent.highlightInstruction.bind($parent, $index()), scrollIntoViewWhen: $index() === $parent.ptr()')
+            span.number(data-bind='text: $index')
+            span.instruction(data-bind='text: $root.RoboCode.formatCode($data)')
+
+      .section.stack
+        h4 Stack
+        ol.plain-list.stack(data-bind='foreach: $root.currentStack')
+          li
+            span.number(data-bind='text: $index')
+            span.value(data-bind='text: $root.RoboCode.formatCode($data)')
+            // ko if: $root.currentOperator
+            span.arg-name(data-bind='text: $root.currentOperator().args[$index()]')
+            // /ko
+
+      .section.editor
+        h4
+          button(data-bind='click: $root.showCode') Code
+          button(data-bind='click: $root.showHardware') Hardware
+          button(data-bind='click: $root.showStats') Stats
+          button.right(data-bind='click: compile') Build
+          button.right(data-bind='click: $root.saveRobot') Save
+        .code(data-bind='visible: $root.editorTab() === "code"')
+          textarea.code(data-bind='value: code')
+        .hardware(data-bind='visible: $root.editorTab() === "hardware"')
+          | hardware goes here
+        .stats(data-bind='visible: $root.editorTab() === "stats"')
+          | stats go here
+
+      .section.registers
+        h4 Registers
+        ul.plain-list.registers(data-bind='foreach: $root.RoboCode.registers')
+          li
+            span.name(data-bind='text: sym')
+            span.value(data-bind='text: $parent.getRegister(sym)')
+            // ko if: doc
+            .doc(data-bind='text: doc')
+            // /ko

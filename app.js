@@ -9,13 +9,17 @@ app.use(express.cookieSession({
     cookie: { maxAge: 60 * 60 * 24 * 365 }
 }))
 app.use(express.urlencoded());
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
 
 ['css', 'src', 'lib'].forEach(function (dir) {
     app.use('/' + dir, express.static(__dirname + '/' + dir));
 });
 app.use('/img', express.static(__dirname + '/img', {maxAge: 60000}));
 
-app.get('/', staticFile('index.html', 'text/html; charset=utf-8'));
+app.get('/', function (req, res) {
+    res.render('index');
+});
 app.get('/lib/require.js', staticFile('node_modules/requirejs/require.js'));
 app.get('/lib/underscore-min.js', staticFile('node_modules/underscore/underscore-min.js'));
 app.get('/jswrapped/*', wrappedJS('src'));

@@ -224,6 +224,7 @@ ul > li.selected {
 #debugger ol.stack .number {
     display: inline-block;
     width: 30px;
+    margin-right: 5px;
     text-align: right;
     color: gray;
 }
