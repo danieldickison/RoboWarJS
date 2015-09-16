@@ -292,9 +292,15 @@ Robot.prototype.pop = function () {
     if (typeof value === 'undefined') {
         throw 'Stack underflow';
     }
+    if (value & RoboCode.NEG_BIT) {
+        value = value | 0xffff0000;
+    }
     return value;
 };
 Robot.prototype.push = function (value) {
+    if (value & RoboCode.NEG_BIT) {
+        value = value & RoboCode.VAL_MASK;
+    }
     var size = this.stack.push(value);
     if (size > this.stackSize()) {
         throw 'Stack overflow';

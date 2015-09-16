@@ -19,6 +19,7 @@ var RoboCode = {
     OP_TAG  : 0x80000000,
     REG_TAG : 0x40000000,
     VAL_MASK: 0x0000ffff,
+    NEG_BIT : 0x00008000,
 
     registers: [
         {
