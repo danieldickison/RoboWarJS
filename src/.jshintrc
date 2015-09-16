@@ -1,6 +1,10 @@
 {
     "node": true,
     "globals": {
-        "ko": true
+        "ko": true,
+        "$": true,
+        "_": true,
+        "alert": true,
+        "DEBUG": true
     }
 }

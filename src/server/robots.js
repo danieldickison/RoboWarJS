@@ -25,7 +25,7 @@ exports.setRobotData = function (name, data, cb) {
 
 exports.examples = function () {
     return _.sortBy(exampleRobots, 'name');
-}
+};
 
 var exampleRobots = {};
 

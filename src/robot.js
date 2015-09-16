@@ -17,6 +17,7 @@ function normalizeDegree(deg) {
 }
 
 function makeMovable(speed, heading, x, y) {
+    /* jshint validthis: true */
     var self = this;
     this.speed = ko.observable(speed);
     this.heading = ko.observable(heading);
@@ -230,8 +231,8 @@ Robot.prototype.endTick = function () {
         this.otherRobotInfo[i].distance = null;
     }
 };
-Robot.prototype.fireProjectile = function(type, energy) {
-    var projectile = new type(this, this.turretAngle(), energy);
+Robot.prototype.fireProjectile = function(Type, energy) {
+    var projectile = new Type(this, this.turretAngle(), energy);
     this.arena.addProjectile(projectile);
 };
 
@@ -358,7 +359,7 @@ Robot.prototype.saveData = function () {
         data[prop] = ko.utils.unwrapObservable(self[prop]);
     });
     return data;
-}
+};
 
 Robot.collisionDamage = 2;
 
@@ -376,6 +377,7 @@ Robot.defaults = {
 
 
 function makeProjectile(shooter, speed, heading, damage) {
+    /* jshint validthis: true */
     this.shooter = shooter;
     this.damage = damage;
     var x = shooter.origin.x(),

@@ -1,3 +1,4 @@
+/* jshint boss: true, debug: true */
 'use strict';
 
 function findLineNumber(lineRanges, ptr) {
@@ -12,6 +13,18 @@ function findLineNumber(lineRanges, ptr) {
         range = lineRanges[line];
     }
     return range ? line : -1;
+}
+
+function deg2rad(deg) {
+    return Math.PI * deg / 180;
+}
+
+function rad2deg(rad) {
+    return rad / Math.PI * 180;
+}
+
+function normalizeDegree(deg) {
+    return ((360 + (deg % 360)) % 360);
 }
 
 
@@ -472,23 +485,25 @@ var RoboCode = {
             labels = {},
             labelLookups = [],
             lineRanges = [],
-            errors = [];
+            errors = [],
+            i;
 
 
         function markError(msg, lineNumber, line, token) {
             if (DEBUG) debugger;
             errors.push({
-                lineNumber: i,
+                lineNumber: lineNumber,
                 line: line,
                 token: token,
                 msg: msg
             });
         }
 
-        for (var i = 0; i < lines.length; i++) {
+        for (i = 0; i < lines.length; i++) {
             var line = lines[i],
                 tokens = line.trim().split(/\s+/),
-                lineRange = {start: instructions.length, end: instructions.length};
+                lineRange = {start: instructions.length, end: instructions.length},
+                register, op;
             lineRanges.push(lineRange);
 
             // Skip empty and comment lines.
@@ -506,8 +521,8 @@ var RoboCode = {
                 }
                 // Verify names of quoted registers.
                 else if (token[token.length-1] === "'") {
-                    var sym = token.substr(0, token.length-1),
-                        register = RoboCode.registersBySym[sym];
+                    var sym = token.substr(0, token.length-1);
+                    register = RoboCode.registersBySym[sym];
                     if (!register) {
                         markError('Unknown register', i, line, token);
                     }
@@ -523,14 +538,13 @@ var RoboCode = {
                     }
                     else {
                         // Check if it's an operator.
-                        var op, register;
                         if (op = RoboCode.operatorsBySym[token]) {
                             instructions.push(op.index | RoboCode.OP_TAG);
                         }
                         // Check if it's a register retrieval, which becomes 2 instructions.
                         else if (register = RoboCode.registersBySym[token]) {
                             instructions.push(register.index | RoboCode.REG_TAG);
-                            instructions.push(RoboCode.operatorsBySym['recall'].index | RoboCode.OP_TAG);
+                            instructions.push(RoboCode.operatorsBySym.recall.index | RoboCode.OP_TAG);
                         }
                         // Otherwise, it should be a jump label. Stash these for resolving later.
                         else {
@@ -544,7 +558,7 @@ var RoboCode = {
         } // End line loop.
 
         // Resolve labels.
-        for (var i = 0; i < labelLookups.length; i++) {
+        for (i = 0; i < labelLookups.length; i++) {
             var ptr = labelLookups[i],
                 label = instructions[ptr],
                 labelPtr = labels[label];
