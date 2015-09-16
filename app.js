@@ -23,6 +23,8 @@ app.get('/', function (req, res) {
 });
 app.get('/lib/require.js', staticFile('node_modules/requirejs/require.js'));
 app.get('/lib/underscore-min.js', staticFile('node_modules/underscore/underscore-min.js'));
+app.get('/lib/knockout.js', staticFile('node_modules/knockout/build/output/knockout-latest.js'));
+app.get('/lib/jquery.min.js', staticFile('node_modules/jquery/dist/jquery.min.js'));
 app.get('/jswrapped/*', wrappedJS('src'));
 app.use('/api', require('./src/server/api'));
 
@@ -34,7 +36,7 @@ function staticFile(path, contentType) {
     var content = fs.readFileSync(__dirname + '/' + path);
     return function (req, res) {
         if (app.get('env') === 'development') {
-            res.sendfile(__dirname + '/' + path);
+            res.sendFile(__dirname + '/' + path);
         }
         else {
             res.set('Content-Type', contentType);
