@@ -2,13 +2,14 @@ var fs = require('fs'),
     express = require('express'),
     app = express();
 
-app.use(express.logger('dev'));
-app.use(express.cookieParser());
-app.use(express.cookieSession({
+app.use(require('morgan')('dev'));
+app.use(require('cookie-parser')());
+app.use(require('cookie-parser')());
+app.use(require('cookie-session')({
     secret: process.env.SESSION_SECRET || 'zebra',
     cookie: { maxAge: 60 * 60 * 24 * 365 }
-}))
-app.use(express.urlencoded());
+}));
+app.use(require('body-parser').urlencoded());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
@@ -24,6 +25,10 @@ app.get('/lib/require.js', staticFile('node_modules/requirejs/require.js'));
 app.get('/lib/underscore-min.js', staticFile('node_modules/underscore/underscore-min.js'));
 app.get('/jswrapped/*', wrappedJS('src'));
 app.use('/api', require('./src/server/api'));
+
+if (app.get('env') === 'development') {
+  app.locals.pretty = true;
+}
 
 function staticFile(path, contentType) {
     var content = fs.readFileSync(__dirname + '/' + path);
@@ -53,12 +58,12 @@ function wrappedJS(dir) {
 
                 val = 'define(function (require, exports, module) {\n' + script + '\n});\n';
                 if (app.get('env') !== 'development') {
-                    cache[path] = script
+                    cache[path] = script;
                 }
                 res.send(val);
             });
         }
-    }
+    };
 }
 
 var port = process.env.VCAP_APP_PORT || 3000;

@@ -196,7 +196,7 @@ var arena = new Arena,
 
 exports.viewModel = viewModel;
 
-window.onload = function () {
+$(document).ready(function () {
     window.viewModel = viewModel;
     ko.applyBindings(viewModel);
-};
+});
