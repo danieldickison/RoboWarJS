@@ -13,7 +13,7 @@ app.use(require('body-parser').urlencoded());
 app.set('views', __dirname + '/views');
 app.set('view engine', 'jade');
 
-['css', 'src', 'lib'].forEach(function (dir) {
+['css', 'src'].forEach(function (dir) {
     app.use('/' + dir, express.static(__dirname + '/' + dir));
 });
 app.use('/img', express.static(__dirname + '/img', {maxAge: 60000}));
