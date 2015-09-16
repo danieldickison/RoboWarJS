@@ -348,7 +348,7 @@ Robot.prototype.reset = function () {
     }
 };
 Robot.prototype.highlightInstruction = function (ptr) {
-    var lineNumber = findLineNumber(this.lineRanges, ptr);
+    var lineNumber = RoboCode.findLineNumber(this.lineRanges, ptr);
     console.log('TODO: highlight source line ' + lineNumber);
 };
 

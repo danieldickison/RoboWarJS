@@ -1,20 +1,6 @@
 /* jshint boss: true, debug: true */
 'use strict';
 
-function findLineNumber(lineRanges, ptr) {
-    var start = 0,
-        end = lineRanges.length,
-        line = Math.floor((start + end) / 2),
-        range = lineRanges[line];
-    while (range && (ptr < range.start || ptr >= range.end)) {
-        if (ptr < range.start) end = line;
-        else start = line + 1;
-        line = Math.floor((start + end) / 2);
-        range = lineRanges[line];
-    }
-    return range ? line : -1;
-}
-
 function deg2rad(deg) {
     return Math.PI * deg / 180;
 }
@@ -469,6 +455,20 @@ var RoboCode = {
         return register;
     },
 
+    findLineNumber: function (lineRanges, ptr) {
+        var start = 0,
+            end = lineRanges.length,
+            line = Math.floor((start + end) / 2),
+            range = lineRanges[line];
+        while (range && (ptr < range.start || ptr >= range.end)) {
+            if (ptr < range.start) end = line;
+            else start = line + 1;
+            line = Math.floor((start + end) / 2);
+            range = lineRanges[line];
+        }
+        return range ? line : -1;
+    },
+
     formatCode: function (code) {
         if (code & RoboCode.OP_TAG) {
             return RoboCode.operators[code & RoboCode.VAL_MASK].sym;
@@ -566,7 +566,7 @@ var RoboCode = {
                 instructions[ptr] = labelPtr;
             }
             else {
-                var lineNumber = findLineNumber(lineRanges, ptr);
+                var lineNumber = RoboCode.findLineNumber(lineRanges, ptr);
                 markError('Unknown label', lineNumber, lines[lineNumber], label);
             }
         }
