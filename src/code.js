@@ -437,6 +437,13 @@ var RoboCode = {
         }
     ],
 
+    getTaggedValue: function (value) {
+        if (value & RoboCode.NEG_BIT) {
+            value = value | 0xffff0000;
+        }
+        return value;
+    },
+
     findRegister: function (symOrIndex) {
         var register;
         if ('string' === typeof symOrIndex) {
@@ -476,7 +483,9 @@ var RoboCode = {
         else if (code & RoboCode.REG_TAG) {
             return RoboCode.registers[code & RoboCode.VAL_MASK].sym + "'";
         }
-        else return code;
+        else {
+            return RoboCode.getTaggedValue(code);
+        }
     },
 
     compile: function (source) {
