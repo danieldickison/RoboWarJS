@@ -1,3 +1,4 @@
+/* jshint browser: true */
 'use strict';
 
 var Arena = require('./arena'),
@@ -126,9 +127,9 @@ function ViewModel(arena, world) {
     this.projectiles = ko.observableArray();
 
     this.editorTab = ko.observable('code');
-    this.showCode = function () {self.editorTab('code')};
-    this.showHardware = function () {self.editorTab('hardware')};
-    this.showStats = function () {self.editorTab('stats')};
+    this.showCode = function () {self.editorTab('code');};
+    this.showHardware = function () {self.editorTab('hardware');};
+    this.showStats = function () {self.editorTab('stats');};
 
     this.running = ko.observable(null);
     this.run = function () {
@@ -190,7 +191,7 @@ function ViewModel(arena, world) {
     this.reset = arena.reset.bind(arena);
 }
 
-var arena = new Arena,
+var arena = new Arena(),
     world = new World('/api', arena),
     viewModel = new ViewModel(arena, world);
 
