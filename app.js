@@ -4,7 +4,6 @@ var fs = require('fs'),
 
 app.use(require('morgan')('dev'));
 app.use(require('cookie-parser')());
-app.use(require('cookie-parser')());
 app.use(require('cookie-session')({
     secret: process.env.SESSION_SECRET || 'zebra',
     cookie: { maxAge: 60 * 60 * 24 * 365 }
