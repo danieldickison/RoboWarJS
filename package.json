@@ -11,6 +11,8 @@
         "jquery":"~2",
         "requirejs":"~2",
         "underscore":"~1",
-        "jade": "*"
+        "jade": "*",
+        "sqlite3": "~3",
+        "scrypt": "~5"
     }
 }

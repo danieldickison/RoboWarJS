@@ -1,6 +1,9 @@
 var fs = require('fs'),
     express = require('express'),
-    app = express();
+    app = express(),
+    db = require('./src/server/db');
+
+db.init(__dirname + '/var/db.sqlite');
 
 app.use(require('morgan')('dev'));
 app.use(require('cookie-parser')());

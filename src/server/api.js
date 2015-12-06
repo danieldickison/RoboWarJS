@@ -1,15 +1,22 @@
+'use strict';
+
 var express = require('express'),
     api = express(),
-    robots = require('./robots');
+    robots = require('./robots'),
+    users = require('./users');
 
 module.exports = api;
 
 api.post('/login', function (req, res) {
-    var user = req.body.user,
+    var name = req.body.user,
         password = req.body.password;
-    // TODO: actually check the password (in db)
-    req.session.user = user;
-    res.json({user: user, authenticated: true});
+
+    users.login(user, password, function (err, user) {
+        if (err) return res.json({error: err});
+
+        req.session.user = user;
+        res.json({user: user, authenticated: true});
+    });
 });
 
 api.post('/logout', function (req, res) {
